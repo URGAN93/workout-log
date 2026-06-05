@@ -408,7 +408,7 @@ function updateSummary(dayData) {
   const vol = dayData.exercises.reduce((a,ex) => a+ex.sets.reduce((b,s) => b+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0),0);
   document.getElementById('sum-exercises').textContent = dayData.exercises.length;
   document.getElementById('sum-sets').textContent = dayData.exercises.reduce((a,ex) => a+ex.sets.length, 0);
-  document.getElementById('sum-volume').textContent = vol>=1000?(vol/1000).toFixed(1)+'t':Math.round(vol);
+document.getElementById('sum-volume').textContent = Math.round(vol).toLocaleString() + 'kg';
 }
 
 async function addExercise() {
@@ -622,7 +622,7 @@ async function renderDashboard() {
   rows.forEach(r => r.exercises.forEach(ex => { exFreq[ex.name]=(exFreq[ex.name]||0)+1; }));
   const topEx = Object.entries(exFreq).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const periodLabel = dashPeriod==='week'?'최근 7일':dashPeriod==='month'?'이번 달':'전체';
-  const volDisplay = totalVol>=1000?(totalVol/1000).toFixed(1)+'t':Math.round(totalVol).toLocaleString();
+const volDisplay = Math.round(totalVol).toLocaleString() + 'kg';
   const rankHtml = topEx.map((e,i) =>
     '<div class="rank-item"><div class="rank-num">'+(i+1)+'</div><div class="rank-name">'+e[0]+'</div><div class="rank-count">'+e[1]+'회</div></div>'
   ).join('');
@@ -637,7 +637,6 @@ async function renderDashboard() {
     '<div class="heatmap-row">'+week.map(date=>'<div class="heatmap-cell'+(allDates.has(date)?' l2':'')+'" title="'+date+'"></div>').join('')+'</div>'
   ).join('');
   content.innerHTML =
-    '<div class="streak-card"><div class="streak-num">'+streak+'</div><div><div class="streak-info-label">연속 운동일</div><div class="streak-info-sub">오늘까지 '+streak+'일 연속 🔥</div></div></div>' +
     '<div class="dash-grid">' +
     '<div class="dash-card"><div class="dash-val">'+workoutDays+'</div><div class="dash-label">운동한 날</div><div class="dash-sub">'+periodLabel+'</div></div>' +
     '<div class="dash-card"><div class="dash-val">'+volDisplay+'</div><div class="dash-label">총 볼륨</div><div class="dash-sub">'+periodLabel+'</div></div>' +

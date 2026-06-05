@@ -227,7 +227,7 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
       <div class="exercise-list" id="exercise-list"></div>
       <div class="add-exercise-area">
         <div class="add-exercise-row">
-          <input class="add-exercise-input" id="new-exercise-name" placeholder="운동 이름 입력" maxlength="30" onkeydown="if(event.key==='Enter')addExercise()">
+          <input class="add-exercise-input" id="new-exercise-name" list="exercise-master" placeholder="운동 이름 입력" maxlength="30" onkeydown="if(event.key==='Enter')addExercise()">
           <button class="confirm-btn" onclick="addExercise()">추가</button>
         </div>
         <div class="category-chips">
@@ -415,9 +415,27 @@ async function addExercise() {
   const input = document.getElementById('new-exercise-name');
   const name = input.value.trim();
   if (!name) { input.focus(); return; }
+
   const dayData = await loadDay(currentDate);
   dayData.exercises.push({name:name, sets:[{weight:'',reps:'',note:''}]});
+
   await saveDay(currentDate, dayData);
+
+  // 운동 마스터 자동 등록
+  const { data: existing } = await sb
+    .from('exercise_master')
+    .select('id')
+    .eq('user_id', currentUser.id)
+    .eq('name', name)
+    .maybeSingle();
+
+  if (!existing) {
+    await sb.from('exercise_master').insert({
+      user_id: currentUser.id,
+      name: name
+    });
+  }
+
   input.value = '';
   render();
   showToast('종목 추가됨');
@@ -654,5 +672,21 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 1800);
 }
 </script>
+<datalist id="exercise-master">
+  <option value="벤치프레스">
+  <option value="인클라인 벤치프레스">
+  <option value="체스트프레스">
+  <option value="랫풀다운">
+  <option value="시티드로우">
+  <option value="케이블로우">
+  <option value="레그프레스">
+  <option value="레그컬">
+  <option value="레그익스텐션">
+  <option value="숄더프레스">
+  <option value="레터럴레이즈">
+  <option value="덤벨컬">
+  <option value="트라이셉스푸쉬다운">
+  <option value="런닝">
+</datalist>
 </body>
 </html>

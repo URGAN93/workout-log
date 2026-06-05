@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>운동 기록</title>
+<script>
+const SUPABASE_URL = 'https://cunkxjevxebevtlymcml.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1bmt4amV2eGViZXZ0bHltY21sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NjAyMjQsImV4cCI6MjA5NjIzNjIyNH0.9Q_amLsSSc4auhgV8hfrUu1JrZ0Ilb2eUWtwmPeJ3qY';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424;
+  --border: #2e2e2e; --accent: #c8f135; --accent-dim: rgba(200,241,53,0.12);
+  --text: #f0f0f0; --text-muted: #888; --text-dim: #555;
+  --danger: #ff5a5a; --radius: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 15px; min-height: 100vh; }
+
+/* Auth screen */
+#auth-screen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.auth-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px; width: 100%; max-width: 380px;
+}
+.auth-logo { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 28px; }
+.auth-title { font-size: 20px; font-weight: 500; margin-bottom: 6px; }
+.auth-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+.auth-tabs { display: flex; gap: 0; background: var(--surface2); border-radius: 8px; padding: 3px; margin-bottom: 20px; }
+.auth-tab { flex: 1; padding: 7px; text-align: center; font-size: 13px; cursor: pointer; border-radius: 6px; color: var(--text-muted); transition: all 0.15s; }
+.auth-tab.active { background: var(--surface); color: var(--text); }
+.field-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.04em; }
+.auth-input {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; padding: 11px 14px;
+  font-size: 14px; font-family: 'Noto Sans KR', sans-serif; margin-bottom: 14px;
+  transition: border-color 0.15s;
+}
+.auth-input:focus { outline: none; border-color: var(--accent); }
+.auth-btn {
+  width: 100%; background: var(--accent); color: #111; border: none;
+  border-radius: 8px; padding: 12px; font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: opacity 0.15s;
+  margin-top: 4px;
+}
+.auth-btn:hover { opacity: 0.85; }
+.auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.auth-msg { font-size: 13px; text-align: center; margin-top: 14px; min-height: 20px; }
+.auth-msg.error { color: var(--danger); }
+.auth-msg.success { color: var(--accent); }
+
+/* App */
+#app-screen { display: none; }
+header {
+  position: sticky; top: 0; z-index: 100; background: var(--bg);
+  border-bottom: 1px solid var(--border); padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+.user-area { display: flex; align-items: center; gap: 10px; }
+.user-email { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+.logout-btn {
+  background: none; border: 1px solid var(--border); color: var(--text-muted);
+  border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer;
+  transition: all 0.15s;
+}
+.logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+.sync-indicator {
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  color: var(--text-dim); transition: color 0.3s;
+}
+.sync-indicator.syncing { color: var(--accent); }
+
+.container { max-width: 680px; margin: 0 auto; padding: 24px 16px 100px; }
+
+.view-tabs { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; margin-bottom: 20px; }
+.view-tab { flex: 1; padding: 7px; text-align: center; font-size: 13px; cursor: pointer; border-radius: 6px; color: var(--text-muted); transition: all 0.15s; }
+.view-tab.active { background: var(--surface2); color: var(--text); }
+
+.date-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+.date-nav button {
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+}
+.date-nav button:hover { background: var(--surface2); }
+.date-label { flex: 1; text-align: center; font-family: 'DM Mono', monospace; font-size: 14px; color: var(--text); cursor: pointer; }
+#date-input { position: absolute; opacity: 0; pointer-events: none; }
+
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+.summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; }
+.summary-val { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; color: var(--accent); line-height: 1; }
+.summary-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+.exercise-list { display: flex; flex-direction: column; gap: 12px; }
+.exercise-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s; }
+.exercise-card:hover { border-color: #444; }
+.exercise-header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; }
+.exercise-name { flex: 1; font-weight: 500; font-size: 15px; }
+.exercise-badge { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); background: var(--surface2); border-radius: 20px; padding: 3px 10px; }
+.chevron { color: var(--text-dim); font-size: 18px; transition: transform 0.2s; line-height: 1; }
+.exercise-card.open .chevron { transform: rotate(180deg); }
+.sets-body { display: none; border-top: 1px solid var(--border); }
+.exercise-card.open .sets-body { display: block; }
+.sets-header { display: grid; grid-template-columns: 36px 1fr 1fr 1fr 40px; gap: 8px; align-items: center; padding: 10px 16px 6px; font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.set-row { display: grid; grid-template-columns: 36px 1fr 1fr 1fr 40px; gap: 8px; align-items: center; padding: 6px 16px; border-top: 1px solid var(--border); }
+.set-num { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dim); text-align: center; }
+.set-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 7px 10px; width: 100%; font-family: 'DM Mono', monospace; font-size: 14px; text-align: center; transition: border-color 0.15s; -webkit-appearance: none; }
+.set-input:focus { outline: none; border-color: var(--accent); background: rgba(200,241,53,0.04); }
+.del-set-btn { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 18px; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: color 0.15s, background 0.15s; }
+.del-set-btn:hover { color: var(--danger); background: rgba(255,90,90,0.1); }
+.card-footer { display: flex; gap: 8px; padding: 10px 16px 14px; align-items: center; }
+.add-set-btn { background: var(--accent-dim); border: 1px solid rgba(200,241,53,0.3); color: var(--accent); border-radius: 8px; padding: 7px 16px; font-size: 13px; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: background 0.15s; }
+.add-set-btn:hover { background: rgba(200,241,53,0.2); }
+.del-exercise-btn { margin-left: auto; background: none; border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; padding: 7px 12px; font-size: 12px; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+.del-exercise-btn:hover { color: var(--danger); border-color: var(--danger); }
+
+.add-exercise-area { margin-top: 16px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); padding: 16px; }
+.add-exercise-row { display: flex; gap: 8px; align-items: center; }
+.add-exercise-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px 14px; font-size: 15px; font-family: 'Noto Sans KR', sans-serif; transition: border-color 0.15s; }
+.add-exercise-input:focus { outline: none; border-color: var(--accent); }
+.add-exercise-input::placeholder { color: var(--text-dim); }
+.confirm-btn { background: var(--accent); color: #111; border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: 'Noto Sans KR', sans-serif; transition: opacity 0.15s; }
+.confirm-btn:hover { opacity: 0.85; }
+.category-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.chip { background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); border-radius: 20px; padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+
+.empty { text-align: center; padding: 48px 0; color: var(--text-dim); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; }
+
+.memo-area { margin-top: 24px; }
+.memo-label { font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+.memo-input { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; resize: vertical; min-height: 80px; transition: border-color 0.15s; }
+.memo-input:focus { outline: none; border-color: var(--accent); }
+.memo-input::placeholder { color: var(--text-dim); }
+
+.calendar-wrap { display: none; }
+.calendar-wrap.show { display: block; }
+.day-view.hide { display: none; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px; }
+.cal-day-label { text-align: center; font-size: 11px; color: var(--text-muted); padding: 4px 0; }
+.cal-cell { aspect-ratio: 1; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; transition: background 0.12s; position: relative; }
+.cal-cell:hover { background: var(--surface2); }
+.cal-cell.today { color: var(--accent); font-weight: 700; }
+.cal-cell.selected { background: var(--accent-dim); border: 1px solid rgba(200,241,53,0.4); }
+.cal-cell.has-data::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+.cal-cell.empty-cell { pointer-events: none; }
+.cal-month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.cal-month-nav button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; padding: 4px 8px; }
+.cal-month-label { font-family: 'DM Mono', monospace; font-size: 14px; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #111; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; z-index: 999; }
+.toast.show { opacity: 1; }
+
+@media (max-width: 480px) {
+  .sets-header, .set-row { grid-template-columns: 28px 1fr 1fr 1fr 32px; gap: 6px; padding: 6px 12px; }
+  .summary-val { font-size: 18px; }
+  header { padding: 12px 16px; }
+  .user-email { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Auth Screen -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">WORKOUT LOG</div>
+    <div class="auth-title">운동 기록 앱</div>
+    <div class="auth-sub">로그인하면 모든 기기에서 동기화됩니다</div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">로그인</div>
+      <div class="auth-tab" onclick="switchAuthTab('signup')">회원가입</div>
+    </div>
+    <div>
+      <div class="field-label">이메일</div>
+      <input class="auth-input" type="email" id="auth-email" placeholder="email@example.com" autocomplete="email">
+      <div class="field-label">비밀번호</div>
+      <input class="auth-input" type="password" id="auth-password" placeholder="6자 이상" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') doAuth()">
+      <button class="auth-btn" id="auth-btn" onclick="doAuth()">로그인</button>
+      <div class="auth-msg" id="auth-msg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- App Screen -->
+<div id="app-screen">
+  <header>
+    <div class="logo">WORKOUT LOG</div>
+    <div class="user-area">
+      <span class="sync-indicator" id="sync-indicator">●</span>
+      <span class="user-email" id="user-email-display"></span>
+      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="view-tabs">
+      <div class="view-tab active" onclick="switchView('day')">일별 기록</div>
+      <div class="view-tab" onclick="switchView('calendar')">달력 보기</div>
+    </div>
+
+    <div class="calendar-wrap" id="calendar-wrap">
+      <div class="cal-month-nav">
+        <button onclick="calPrevMonth()">‹</button>
+        <div class="cal-month-label" id="cal-month-label"></div>
+        <button onclick="calNextMonth()">›</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div style="margin-top:8px; text-align:center; font-size:12px; color:var(--text-muted)">날짜를 탭하면 해당 날짜로 이동합니다</div>
+    </div>
+
+    <div class="day-view" id="day-view">
+      <div class="date-nav">
+        <button onclick="changeDate(-1)">‹</button>
+        <div class="date-label" onclick="openDatePicker()">
+          <span id="date-display"></span>
+        </div>
+        <button onclick="changeDate(1)">›</button>
+        <input type="date" id="date-input" onchange="onDatePick(this.value)">
+      </div>
+
+      <div class="summary">
+        <div class="summary-card"><div class="summary-val" id="sum-exercises">0</div><div class="summary-label">종목</div></div>
+        <div class="summary-card"><div class="summary-val" id="sum-sets">0</div><div class="summary-label">총 세트</div></div>
+        <div class="summary-card"><div class="summary-val" id="sum-volume">0</div><div class="summary-label">볼륨(kg)</div></div>
+      </div>
+
+      <div class="exercise-list" id="exercise-list"></div>
+
+      <div class="add-exercise-area">
+        <div class="add-exercise-row">
+          <input class="add-exercise-input" id="new-exercise-name" placeholder="운동 이름 입력 (예: 벤치프레스)" maxlength="30"
+            onkeydown="if(event.key==='Enter') addExercise()">
+          <button class="confirm-btn" onclick="addExercise()">추가</button>
+        </div>
+        <div class="category-chips">
+          <div class="chip" onclick="quickAdd('벤치프레스')">벤치프레스</div>
+          <div class="chip" onclick="quickAdd('스쿼트')">스쿼트</div>
+          <div class="chip" onclick="quickAdd('데드리프트')">데드리프트</div>
+          <div class="chip" onclick="quickAdd('오버헤드프레스')">OHP</div>
+          <div class="chip" onclick="quickAdd('랫풀다운')">랫풀다운</div>
+          <div class="chip" onclick="quickAdd('케이블로우')">케이블로우</div>
+          <div class="chip" onclick="quickAdd('레그프레스')">레그프레스</div>
+          <div class="chip" onclick="quickAdd('덤벨컬')">덤벨컬</div>
+          <div class="chip" onclick="quickAdd('트라이셉스')">트라이셉스</div>
+          <div class="chip" onclick="quickAdd('런닝')">런닝</div>
+        </div>
+      </div>
+
+      <div class="memo-area">
+        <div class="memo-label">메모</div>
+        <textarea class="memo-input" id="memo-input" placeholder="오늘 운동 메모..." rows="3" oninput="scheduleSave()"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentDate = todayStr();
+let currentUser = null;
+let dayCache = {};
+let saveTimer = null;
+let calViewYear, calViewMonth;
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+function formatDate(str) {
+  const d = new Date(str + 'T00:00:00');
+  const days = ['일','월','화','수','목','금','토'];
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} (${days[d.getDay()]})`;
+}
+
+/* ---- Auth ---- */
+let authMode = 'login';
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&mode==='login')||(i===1&&mode==='signup')));
+  document.getElementById('auth-btn').textContent = mode === 'login' ? '로그인' : '회원가입';
+  document.getElementById('auth-msg').textContent = '';
+}
+
+async function doAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const btn = document.getElementById('auth-btn');
+  const msg = document.getElementById('auth-msg');
+  if (!email || !password) { msg.className='auth-msg error'; msg.textContent='이메일과 비밀번호를 입력하세요.'; return; }
+  btn.disabled = true; msg.className='auth-msg'; msg.textContent='처리 중...';
+  let err;
+  if (authMode === 'login') {
+    const r = await sb.auth.signInWithPassword({ email, password });
+    err = r.error;
+  } else {
+    const r = await sb.auth.signUp({ email, password });
+    err = r.error;
+    if (!err) { msg.className='auth-msg success'; msg.textContent='가입 완료! 이메일 인증 후 로그인하세요.'; btn.disabled=false; return; }
+  }
+  if (err) { msg.className='auth-msg error'; msg.textContent = err.message.includes('Invalid login') ? '이메일 또는 비밀번호가 틀렸습니다.' : err.message; }
+  btn.disabled = false;
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null; dayCache = {};
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    currentUser = session.user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    document.getElementById('user-email-display').textContent = currentUser.email;
+    currentDate = todayStr();
+    await render();
+  }
+});
+
+/* ---- Data ---- */
+async function loadDay(date) {
+  if (dayCache[date]) return dayCache[date];
+  setSyncing(true);
+  const { data } = await sb.from('workouts').select('*').eq('user_id', currentUser.id).eq('date', date).maybeSingle();
+  setSyncing(false);
+  const day = data ? { exercises: data.exercises || [], memo: data.memo || '' } : { exercises: [], memo: '' };
+  dayCache[date] = day;
+  return day;
+}
+
+async function saveDay(date, dayData) {
+  dayCache[date] = dayData;
+  setSyncing(true);
+  await sb.from('workouts').upsert({
+    user_id: currentUser.id,
+    date: date,
+    exercises: dayData.exercises,
+    memo: dayData.memo,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id,date' });
+  setSyncing(false);
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const dayData = dayCache[currentDate] || { exercises: [], memo: '' };
+    dayData.memo = document.getElementById('memo-input').value;
+    await saveDay(currentDate, dayData);
+  }, 800);
+}
+
+function setSyncing(on) {
+  const el = document.getElementById('sync-indicator');
+  if (el) el.className = 'sync-indicator' + (on ? ' syncing' : '');
+}
+
+/* ---- Render ---- */
+async function render() {
+  const dayData = await loadDay(currentDate);
+  document.getElementById('date-display').textContent = formatDate(currentDate);
+  const list = document.getElementById('exercise-list');
+  list.innerHTML = '';
+  if (!dayData.exercises.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">🏋️</div><div class="empty-text">아직 운동이 없습니다. 아래에서 추가하세요.</div></div>`;
+  } else {
+    dayData.exercises.forEach((ex, ei) => renderExercise(list, ex, ei));
+  }
+  document.getElementById('memo-input').value = dayData.memo || '';
+  updateSummary(dayData);
+}
+
+function renderExercise(container, ex, ei) {
+  const card = document.createElement('div');
+  card.className = 'exercise-card open';
+  const vol = ex.sets.reduce((a,s)=>a+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0);
+  card.innerHTML = `
+    <div class="exercise-header" onclick="toggleCard(this)">
+      <div class="exercise-name">${ex.name}</div>
+      <div class="exercise-badge">${ex.sets.length}세트 · ${vol>0?Math.round(vol)+'kg':'—'}</div>
+      <div class="chevron">⌃</div>
+    </div>
+    <div class="sets-body">
+      <div class="sets-header">
+        <div style="text-align:center">세트</div><div style="text-align:center">무게(kg)</div>
+        <div style="text-align:center">횟수</div><div style="text-align:center">메모</div><div></div>
+      </div>
+      ${ex.sets.map((s,si)=>`
+        <div class="set-row">
+          <div class="set-num">${si+1}</div>
+          <input class="set-input" type="number" inputmode="decimal" min="0" step="0.5" value="${s.weight||''}" placeholder="0" onchange="updateSet(${ei},${si},'weight',this.value)">
+          <input class="set-input" type="number" inputmode="numeric" min="0" step="1" value="${s.reps||''}" placeholder="0" onchange="updateSet(${ei},${si},'reps',this.value)">
+          <input class="set-input" type="text" value="${s.note||''}" placeholder="—" onchange="updateSet(${ei},${si},'note',this.value)" style="font-size:12px">
+          <button class="del-set-btn" onclick="deleteSet(${ei},${si})">×</button>
+        </div>`).join('')}
+      <div class="card-footer">
+        <button class="add-set-btn" onclick="addSet(${ei})">+ 세트 추가</button>
+        <button class="del-exercise-btn" onclick="deleteExercise(${ei})">종목 삭제</button>
+      </div>
+    </div>`;
+  container.appendChild(card);
+}
+
+function toggleCard(header) { header.closest('.exercise-card').classList.toggle('open'); }
+
+function updateSummary(dayData) {
+  const vol = dayData.exercises.reduce((a,ex)=>a+ex.sets.reduce((b,s)=>b+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0),0);
+  document.getElementById('sum-exercises').textContent = dayData.exercises.length;
+  document.getElementById('sum-sets').textContent = dayData.exercises.reduce((a,ex)=>a+ex.sets.length,0);
+  document.getElementById('sum-volume').textContent = vol>=1000?(vol/1000).toFixed(1)+'t':Math.round(vol);
+}
+
+async function addExercise() {
+  const input = document.getElementById('new-exercise-name');
+  const name = input.value.trim();
+  if (!name) { input.focus(); return; }
+  const dayData = await loadDay(currentDate);
+  dayData.exercises.push({ name, sets: [{ weight:'', reps:'', note:'' }] });
+  await saveDay(currentDate, dayData);
+  input.value = '';
+  render(); showToast('종목 추가됨');
+}
+function quickAdd(name) { document.getElementById('new-exercise-name').value = name; addExercise(); }
+
+async function addSet(ei) {
+  const dayData = await loadDay(currentDate);
+  const prev = dayData.exercises[ei].sets.slice(-1)[0] || {};
+  dayData.exercises[ei].sets.push({ weight: prev.weight||'', reps: prev.reps||'', note:'' });
+  await saveDay(currentDate, dayData); render();
+}
+
+async function deleteSet(ei, si) {
+  const dayData = await loadDay(currentDate);
+  dayData.exercises[ei].sets.splice(si, 1);
+  await saveDay(currentDate, dayData); render();
+}
+
+async function deleteExercise(ei) {
+  if (!confirm('이 종목을 삭제할까요?')) return;
+  const dayData = await loadDay(currentDate);
+  dayData.exercises.splice(ei, 1);
+  await saveDay(currentDate, dayData); render(); showToast('종목 삭제됨');
+}
+
+async function updateSet(ei, si, field, val) {
+  const dayData = await loadDay(currentDate);
+  dayData.exercises[ei].sets[si][field] = val;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveDay(currentDate, dayData), 600);
+  updateSummary(dayData);
+  const cards = document.querySelectorAll('.exercise-card');
+  if (cards[ei]) {
+    const ex = dayData.exercises[ei];
+    const vol = ex.sets.reduce((a,s)=>a+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0);
+    cards[ei].querySelector('.exercise-badge').textContent = `${ex.sets.length}세트 · ${vol>0?Math.round(vol)+'kg':'—'}`;
+  }
+}
+
+function changeDate(delta) {
+  const d = new Date(currentDate + 'T00:00:00');
+  d.setDate(d.getDate() + delta);
+  currentDate = d.toISOString().slice(0, 10);
+  render();
+}
+function openDatePicker() {
+  const inp = document.getElementById('date-input');
+  inp.value = currentDate; inp.style.pointerEvents='auto'; inp.click(); inp.style.pointerEvents='none';
+}
+function onDatePick(val) { if(val){ currentDate=val; render(); } }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+/* ---- Calendar ---- */
+function switchView(v) {
+  document.querySelectorAll('.view-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&v==='day')||(i===1&&v==='calendar')));
+  document.getElementById('calendar-wrap').classList.toggle('show', v==='calendar');
+  document.getElementById('day-view').classList.toggle('hide', v==='calendar');
+  if (v==='calendar') renderCalendar();
+}
+
+async function renderCalendar() {
+  const today = new Date();
+  if (calViewYear===undefined){ calViewYear=today.getFullYear(); calViewMonth=today.getMonth(); }
+  document.getElementById('cal-month-label').textContent = `${calViewYear}년 ${calViewMonth+1}월`;
+  const { data } = await sb.from('workouts').select('date').eq('user_id', currentUser.id)
+    .gte('date', `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-01`)
+    .lte('date', `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-31`);
+  const datesWithData = new Set((data||[]).map(r=>r.date));
+  const first = new Date(calViewYear, calViewMonth, 1);
+  const last = new Date(calViewYear, calViewMonth+1, 0);
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  ['일','월','화','수','목','금','토'].forEach(d=>{ const el=document.createElement('div'); el.className='cal-day-label'; el.textContent=d; grid.appendChild(el); });
+  for(let i=0;i<first.getDay();i++){ const el=document.createElement('div'); el.className='cal-cell empty-cell'; grid.appendChild(el); }
+  for(let d=1;d<=last.getDate();d++){
+    const dateStr=`${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const el=document.createElement('div'); el.className='cal-cell'; el.textContent=d;
+    if(dateStr===todayStr()) el.classList.add('today');
+    if(dateStr===currentDate) el.classList.add('selected');
+    if(datesWithData.has(dateStr)) el.classList.add('has-data');
+    el.onclick=()=>{ currentDate=dateStr; render(); switchView('day'); };
+    grid.appendChild(el);
+  }
+}
+function calPrevMonth(){ calViewMonth--; if(calViewMonth<0){calViewMonth=11;calViewYear--;} renderCalendar(); }
+function calNextMonth(){ calViewMonth++; if(calViewMonth>11){calViewMonth=0;calViewYear++;} renderCalendar(); }
+</script>
+</body>
+</html>

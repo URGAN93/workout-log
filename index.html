@@ -56,8 +56,12 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .summary-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--accent);line-height:1;}
 .summary-label{font-size:11px;color:var(--text-muted);margin-top:4px;}
 .exercise-list{display:flex;flex-direction:column;gap:12px;}
-.exercise-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.exercise-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:opacity .2s,transform .15s;}
+.exercise-card.dragging{opacity:.4;transform:scale(.98);}
+.exercise-card.drag-over{border-color:var(--accent);border-style:dashed;}
 .exercise-header{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;}
+.drag-handle{color:var(--text-dim);cursor:grab;font-size:18px;padding:0 4px;user-select:none;touch-action:none;flex-shrink:0;}
+.drag-handle:active{cursor:grabbing;color:var(--accent);}
 .exercise-name{flex:1;font-weight:500;font-size:15px;}
 .exercise-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);background:var(--surface2);border-radius:20px;padding:3px 10px;}
 .chevron{color:var(--text-dim);font-size:18px;transition:transform .2s;line-height:1;}
@@ -115,6 +119,8 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .day-view.hide{display:none;}
 .dashboard-wrap{display:none;}
 .dashboard-wrap.show{display:block;}
+.history-wrap{display:none;}
+.history-wrap.show{display:block;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;}
 .cal-day-label{text-align:center;font-size:11px;color:var(--text-muted);padding:4px 0;}
 .cal-cell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:background .12s;position:relative;}
@@ -139,14 +145,34 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .rank-num{font-family:'DM Mono',monospace;font-size:13px;color:var(--text-dim);min-width:20px;}
 .rank-name{flex:1;font-size:14px;font-weight:500;}
 .rank-count{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);}
-.streak-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:16px;}
-.streak-num{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:var(--accent);}
-.streak-info-label{font-size:14px;font-weight:500;margin-bottom:2px;}
-.streak-info-sub{font-size:12px;color:var(--text-muted);}
 .heatmap-wrap{overflow-x:auto;}
 .heatmap-row{display:flex;gap:3px;margin-bottom:3px;}
 .heatmap-cell{width:14px;height:14px;border-radius:3px;background:var(--surface2);flex-shrink:0;}
 .heatmap-cell.l2{background:rgba(200,241,53,.5);}
+
+/* ── 기록 탭 ── */
+.history-select-wrap{position:relative;margin-bottom:24px;}
+.history-select-label{font-size:12px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
+.history-select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 40px 12px 16px;font-size:15px;font-family:'Noto Sans KR',sans-serif;appearance:none;-webkit-appearance:none;cursor:pointer;transition:border-color .15s;}
+.history-select:focus{outline:none;border-color:var(--accent);}
+.history-select-arrow{position:absolute;right:14px;bottom:14px;color:var(--text-muted);pointer-events:none;font-size:14px;}
+.history-loading{text-align:center;padding:40px 0;color:var(--text-dim);font-size:14px;}
+.history-session{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;}
+.history-session-header{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);}
+.history-session-date{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
+.history-session-meta{font-size:12px;color:var(--text-muted);}
+.history-set-table{width:100%;border-collapse:collapse;}
+.history-set-table th{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 16px 6px;text-align:center;font-weight:400;}
+.history-set-table td{font-family:'DM Mono',monospace;font-size:13px;text-align:center;padding:6px 16px;border-top:1px solid var(--border);color:var(--text);}
+.history-set-table td.set-idx{color:var(--text-dim);font-size:12px;}
+.history-set-table td.note-cell{font-family:'Noto Sans KR',sans-serif;font-size:12px;color:var(--text-muted);}
+.history-vol{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);padding:7px 16px 10px;text-align:right;}
+.history-empty{text-align:center;padding:60px 0;color:var(--text-dim);}
+.history-empty-icon{font-size:36px;margin-bottom:12px;}
+.history-empty-text{font-size:14px;}
+.history-no-select{text-align:center;padding:60px 0;color:var(--text-dim);}
+.history-count-badge{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:12px;}
+
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#111;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:999;}
 .toast.show{opacity:1;}
 @media(max-width:480px){
@@ -154,6 +180,7 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
   .summary-val{font-size:18px;}
   header{padding:12px 16px;}
   .user-email{display:none;}
+  .history-set-table th,.history-set-table td{padding:6px 10px;}
 }
 </style>
 </head>
@@ -190,9 +217,11 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
     <div class="view-tabs">
       <div class="view-tab active" onclick="switchView('day')">오늘</div>
       <div class="view-tab" onclick="switchView('calendar')">달력</div>
+      <div class="view-tab" onclick="switchView('history')">기록</div>
       <div class="view-tab" onclick="switchView('dashboard')">통계</div>
     </div>
 
+    <!-- 달력 -->
     <div class="calendar-wrap" id="calendar-wrap">
       <div class="cal-month-nav">
         <button onclick="calPrevMonth()">‹</button>
@@ -203,6 +232,24 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
       <div style="margin-top:8px;text-align:center;font-size:12px;color:var(--text-muted)">날짜를 탭하면 해당 날짜로 이동합니다</div>
     </div>
 
+    <!-- 기록 탭 -->
+    <div class="history-wrap" id="history-wrap">
+      <div class="history-select-wrap">
+        <div class="history-select-label">운동 선택</div>
+        <select class="history-select" id="history-select" onchange="onHistoryExSelect(this.value)">
+          <option value="">— 운동을 선택하세요 —</option>
+        </select>
+        <div class="history-select-arrow">▼</div>
+      </div>
+      <div id="history-content">
+        <div class="history-no-select">
+          <div class="empty-icon">🔍</div>
+          <div style="font-size:14px;color:var(--text-dim);margin-top:8px">위에서 운동을 선택하면<br>최근 기록이 표시됩니다</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 통계 -->
     <div class="dashboard-wrap" id="dashboard-wrap">
       <div class="dash-period-tabs">
         <div class="dash-tab active" onclick="switchDashPeriod('week')">이번 주</div>
@@ -212,6 +259,7 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
       <div id="dash-content"></div>
     </div>
 
+    <!-- 오늘 -->
     <div class="day-view" id="day-view">
       <div class="date-nav">
         <button onclick="changeDate(-1)">‹</button>
@@ -275,6 +323,7 @@ let routineCache = null;
 let saveTimer = null;
 let calViewYear, calViewMonth;
 let dashPeriod = 'week';
+let currentView = 'day';
 
 function todayStr() {
   const d = new Date();
@@ -285,6 +334,12 @@ function formatDate(str) {
   const d = new Date(str + 'T00:00:00');
   const days = ['일','월','화','수','목','금','토'];
   return d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0') + ' (' + days[d.getDay()] + ')';
+}
+
+function formatDateShort(str) {
+  const d = new Date(str + 'T00:00:00');
+  const days = ['일','월','화','수','목','금','토'];
+  return (d.getMonth()+1) + '/' + d.getDate() + ' (' + days[d.getDay()] + ')';
 }
 
 let authMode = 'login';
@@ -367,6 +422,7 @@ async function render() {
     list.innerHTML = '<div class="empty"><div class="empty-icon">🏋️</div><div class="empty-text">아직 운동이 없습니다. 아래에서 추가하세요.</div></div>';
   } else {
     dayData.exercises.forEach((ex, ei) => renderExercise(list, ex, ei));
+    initDragDrop(list);
   }
   document.getElementById('memo-input').value = dayData.memo || '';
   updateSummary(dayData);
@@ -386,11 +442,15 @@ function renderExercise(container, ex, ei) {
     '<button class="del-set-btn" onclick="deleteSet(' + ei + ',' + si + ')">×</button>' +
     '</div>'
   ).join('');
+  card.dataset.ei = ei;
   card.innerHTML =
-    '<div class="exercise-header" onclick="toggleCard(this)">' +
+    '<div class="exercise-header">' +
+    '<div class="drag-handle">⠿</div>' +
+    '<div style="flex:1;display:flex;align-items:center;gap:10px;" onclick="toggleCard(this)">' +
     '<div class="exercise-name">' + ex.name + '</div>' +
     '<div class="exercise-badge">' + ex.sets.length + '세트 · ' + (vol>0?Math.round(vol)+'kg':'—') + '</div>' +
     '<div class="chevron">⌃</div>' +
+    '</div>' +
     '</div>' +
     '<div class="sets-body">' +
     '<div class="sets-header"><div style="text-align:center">세트</div><div style="text-align:center">무게(kg)</div><div style="text-align:center">횟수</div><div style="text-align:center">메모</div><div></div></div>' +
@@ -402,40 +462,101 @@ function renderExercise(container, ex, ei) {
   container.appendChild(card);
 }
 
-function toggleCard(header) { header.closest('.exercise-card').classList.toggle('open'); }
+function toggleCard(el) { el.closest('.exercise-card').classList.toggle('open'); }
+
+let dragSrc = null;
+function initDragDrop(list) {
+  list.querySelectorAll('.exercise-card').forEach(card => {
+    const handle = card.querySelector('.drag-handle');
+    handle.addEventListener('mousedown', () => { card.draggable = true; });
+    card.addEventListener('dragstart', e => {
+      dragSrc = card;
+      setTimeout(() => card.classList.add('dragging'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', () => {
+      card.draggable = false;
+      card.classList.remove('dragging');
+      list.querySelectorAll('.exercise-card').forEach(c => c.classList.remove('drag-over'));
+      saveDragOrder(list);
+    });
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (dragSrc && dragSrc !== card) {
+        list.querySelectorAll('.exercise-card').forEach(c => c.classList.remove('drag-over'));
+        card.classList.add('drag-over');
+        const mid = card.getBoundingClientRect().top + card.getBoundingClientRect().height / 2;
+        if (e.clientY < mid) list.insertBefore(dragSrc, card);
+        else list.insertBefore(dragSrc, card.nextSibling);
+      }
+    });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => { e.preventDefault(); card.classList.remove('drag-over'); });
+
+    let touchStartY = 0, touchClone = null;
+    handle.addEventListener('touchstart', e => {
+      touchStartY = e.touches[0].clientY;
+      card.classList.add('dragging');
+      touchClone = card.cloneNode(true);
+      touchClone.style.cssText = 'position:fixed;z-index:9999;left:' + card.getBoundingClientRect().left + 'px;top:' + card.getBoundingClientRect().top + 'px;width:' + card.offsetWidth + 'px;opacity:.85;pointer-events:none;border:1px solid var(--accent);border-radius:12px;';
+      document.body.appendChild(touchClone);
+      e.preventDefault();
+    }, {passive:false});
+    handle.addEventListener('touchmove', e => {
+      if (!touchClone) return;
+      const dy = e.touches[0].clientY - touchStartY;
+      touchClone.style.top = (card.getBoundingClientRect().top + dy) + 'px';
+      const over = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      const overCard = over ? over.closest('.exercise-card') : null;
+      list.querySelectorAll('.exercise-card').forEach(c => c.classList.remove('drag-over'));
+      if (overCard && overCard !== card) {
+        const mid = overCard.getBoundingClientRect().top + overCard.getBoundingClientRect().height / 2;
+        if (e.touches[0].clientY < mid) list.insertBefore(card, overCard);
+        else list.insertBefore(card, overCard.nextSibling);
+      }
+      e.preventDefault();
+    }, {passive:false});
+    handle.addEventListener('touchend', () => {
+      if (touchClone) { document.body.removeChild(touchClone); touchClone = null; }
+      card.classList.remove('dragging');
+      list.querySelectorAll('.exercise-card').forEach(c => c.classList.remove('drag-over'));
+      saveDragOrder(list);
+    });
+  });
+}
+
+async function saveDragOrder(list) {
+  const dayData = await loadDay(currentDate);
+  const oldEx = [...dayData.exercises];
+  const newEx = [];
+  list.querySelectorAll('.exercise-card').forEach(card => {
+    const ei = parseInt(card.dataset.ei);
+    if (!isNaN(ei) && oldEx[ei]) newEx.push(oldEx[ei]);
+  });
+  if (newEx.length === dayData.exercises.length) {
+    dayData.exercises = newEx;
+    await saveDay(currentDate, dayData);
+    list.querySelectorAll('.exercise-card').forEach((card, i) => { card.dataset.ei = i; });
+    showToast('순서 저장됨');
+  }
+}
 
 function updateSummary(dayData) {
   const vol = dayData.exercises.reduce((a,ex) => a+ex.sets.reduce((b,s) => b+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0),0);
   document.getElementById('sum-exercises').textContent = dayData.exercises.length;
   document.getElementById('sum-sets').textContent = dayData.exercises.reduce((a,ex) => a+ex.sets.length, 0);
-document.getElementById('sum-volume').textContent = Math.round(vol).toLocaleString() + 'kg';
+  document.getElementById('sum-volume').textContent = Math.round(vol).toLocaleString() + 'kg';
 }
 
 async function addExercise() {
   const input = document.getElementById('new-exercise-name');
   const name = input.value.trim();
   if (!name) { input.focus(); return; }
-
   const dayData = await loadDay(currentDate);
   dayData.exercises.push({name:name, sets:[{weight:'',reps:'',note:''}]});
-
   await saveDay(currentDate, dayData);
-
-  // 운동 마스터 자동 등록
-  const { data: existing } = await sb
-    .from('exercise_master')
-    .select('id')
-    .eq('user_id', currentUser.id)
-    .eq('name', name)
-    .maybeSingle();
-
-  if (!existing) {
-    await sb.from('exercise_master').insert({
-      user_id: currentUser.id,
-      name: name
-    });
-  }
-
+  const { data: existing } = await sb.from('exercise_master').select('id').eq('user_id', currentUser.id).eq('name', name).maybeSingle();
+  if (!existing) { await sb.from('exercise_master').insert({user_id: currentUser.id, name: name}); }
   input.value = '';
   render();
   showToast('종목 추가됨');
@@ -568,13 +689,116 @@ async function deleteRoutine(id) {
 }
 
 function switchView(v) {
-  document.querySelectorAll('.view-tab').forEach((t,i) => t.classList.toggle('active', ['day','calendar','dashboard'][i]===v));
+  currentView = v;
+  document.querySelectorAll('.view-tab').forEach((t,i) => t.classList.toggle('active', ['day','calendar','history','dashboard'][i]===v));
   document.getElementById('calendar-wrap').classList.toggle('show', v==='calendar');
   document.getElementById('day-view').classList.toggle('hide', v!=='day');
+  document.getElementById('history-wrap').classList.toggle('show', v==='history');
   document.getElementById('dashboard-wrap').classList.toggle('show', v==='dashboard');
   if (v==='calendar') renderCalendar();
   if (v==='dashboard') renderDashboard();
+  if (v==='history') initHistoryTab();
 }
+
+// ── 기록 탭 ──────────────────────────────────────────────
+
+async function initHistoryTab() {
+  const sel = document.getElementById('history-select');
+  // 한 달 기준 빈도순으로 운동 목록 로드
+  const fromDate = (() => {
+    const d = new Date(); d.setDate(d.getDate()-30);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  })();
+  setSyncing(true);
+  const {data} = await sb.from('workouts').select('exercises').eq('user_id', currentUser.id).gte('date', fromDate);
+  setSyncing(false);
+
+  // 빈도 집계
+  const freq = {};
+  (data||[]).forEach(row => {
+    (row.exercises||[]).forEach(ex => { freq[ex.name] = (freq[ex.name]||0) + 1; });
+  });
+
+  // 빈도 없으면 전체 기간으로 fallback
+  let exNames = Object.entries(freq).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+  if (!exNames.length) {
+    const {data: allData} = await sb.from('workouts').select('exercises').eq('user_id', currentUser.id);
+    const freq2 = {};
+    (allData||[]).forEach(row => { (row.exercises||[]).forEach(ex => { freq2[ex.name]=(freq2[ex.name]||0)+1; }); });
+    exNames = Object.entries(freq2).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+  }
+
+  const prevVal = sel.value;
+  sel.innerHTML = '<option value="">— 운동을 선택하세요 —</option>';
+  exNames.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name + (freq[name] ? '  (' + freq[name] + '회/월)' : '');
+    sel.appendChild(opt);
+  });
+
+  // 이전 선택 유지
+  if (prevVal && exNames.includes(prevVal)) {
+    sel.value = prevVal;
+    onHistoryExSelect(prevVal);
+  }
+}
+
+async function onHistoryExSelect(name) {
+  const content = document.getElementById('history-content');
+  if (!name) {
+    content.innerHTML = '<div class="history-no-select"><div class="empty-icon">🔍</div><div style="font-size:14px;color:var(--text-dim);margin-top:8px">위에서 운동을 선택하면<br>최근 기록이 표시됩니다</div></div>';
+    return;
+  }
+  content.innerHTML = '<div class="history-loading">불러오는 중...</div>';
+  setSyncing(true);
+  const {data} = await sb.from('workouts').select('date,exercises').eq('user_id', currentUser.id).order('date', {ascending:false});
+  setSyncing(false);
+
+  // 해당 운동이 있는 세션만 필터 (최근 10회)
+  const sessions = [];
+  for (const row of (data||[])) {
+    const ex = (row.exercises||[]).find(e => e.name === name);
+    if (ex) {
+      sessions.push({date: row.date, sets: ex.sets || []});
+      if (sessions.length >= 10) break;
+    }
+  }
+
+  if (!sessions.length) {
+    content.innerHTML = '<div class="history-empty"><div class="history-empty-icon">📭</div><div class="history-empty-text">"' + name + '" 기록이 없습니다</div></div>';
+    return;
+  }
+
+  let html = '<div class="history-count-badge">최근 ' + sessions.length + '회 기록</div>';
+  sessions.forEach(session => {
+    const vol = session.sets.reduce((a,s) => a+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0), 0);
+    const totalSets = session.sets.length;
+    const hasNote = session.sets.some(s => s.note && s.note.trim());
+    const rowsHtml = session.sets.map((s, i) => {
+      const w = s.weight ? s.weight + 'kg' : '—';
+      const r = s.reps ? s.reps + '회' : '—';
+      const noteCell = hasNote ? '<td class="note-cell">' + (s.note||'—') + '</td>' : '';
+      return '<tr><td class="set-idx">' + (i+1) + '</td><td>' + w + '</td><td>' + r + '</td>' + noteCell + '</tr>';
+    }).join('');
+
+    html +=
+      '<div class="history-session">' +
+      '<div class="history-session-header">' +
+      '<div class="history-session-date">' + formatDateShort(session.date) + '</div>' +
+      '<div class="history-session-meta">' + totalSets + '세트' + (vol > 0 ? ' · ' + Math.round(vol).toLocaleString() + 'kg' : '') + '</div>' +
+      '</div>' +
+      '<table class="history-set-table">' +
+      '<thead><tr><th>세트</th><th>무게</th><th>횟수</th>' + (hasNote ? '<th>메모</th>' : '') + '</tr></thead>' +
+      '<tbody>' + rowsHtml + '</tbody>' +
+      '</table>' +
+      (vol > 0 ? '<div class="history-vol">볼륨 ' + Math.round(vol).toLocaleString() + ' kg</div>' : '') +
+      '</div>';
+  });
+
+  content.innerHTML = html;
+}
+
+// ── 달력 ──────────────────────────────────────────────────
 
 async function renderCalendar() {
   const today = new Date();
@@ -603,6 +827,8 @@ async function renderCalendar() {
 
 function calPrevMonth() { calViewMonth--; if(calViewMonth<0){calViewMonth=11;calViewYear--;} renderCalendar(); }
 function calNextMonth() { calViewMonth++; if(calViewMonth>11){calViewMonth=0;calViewYear++;} renderCalendar(); }
+
+// ── 통계 ──────────────────────────────────────────────────
 
 function switchDashPeriod(p) {
   dashPeriod = p;
@@ -640,10 +866,17 @@ async function renderDashboard() {
   rows.forEach(r => r.exercises.forEach(ex => { exFreq[ex.name]=(exFreq[ex.name]||0)+1; }));
   const topEx = Object.entries(exFreq).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const periodLabel = dashPeriod==='week'?'최근 7일':dashPeriod==='month'?'이번 달':'전체';
-const volDisplay = Math.round(totalVol).toLocaleString() + 'kg';
+  const volDisplay = Math.round(totalVol).toLocaleString() + 'kg';
+
+  // 탑5 클릭 → 기록 탭으로 이동
   const rankHtml = topEx.map((e,i) =>
-    '<div class="rank-item"><div class="rank-num">'+(i+1)+'</div><div class="rank-name">'+e[0]+'</div><div class="rank-count">'+e[1]+'회</div></div>'
+    '<div class="rank-item" style="cursor:pointer;" onclick="goToHistory(\'' + e[0].replace(/'/g,"\\'") + '\')">' +
+    '<div class="rank-num">'+(i+1)+'</div>' +
+    '<div class="rank-name">'+e[0]+'</div>' +
+    '<div class="rank-count">'+e[1]+'회 <span style="color:var(--accent);font-size:10px;margin-left:4px">→</span></div>' +
+    '</div>'
   ).join('');
+
   const weeks = [];
   const hd = new Date(today); hd.setDate(hd.getDate()-hd.getDay());
   for (let w=12; w>=0; w--) {
@@ -654,6 +887,7 @@ const volDisplay = Math.round(totalVol).toLocaleString() + 'kg';
   const heatmapHtml = weeks.map(week =>
     '<div class="heatmap-row">'+week.map(date=>'<div class="heatmap-cell'+(allDates.has(date)?' l2':'')+'" title="'+date+'"></div>').join('')+'</div>'
   ).join('');
+
   content.innerHTML =
     '<div class="dash-grid">' +
     '<div class="dash-card"><div class="dash-val">'+workoutDays+'</div><div class="dash-label">운동한 날</div><div class="dash-sub">'+periodLabel+'</div></div>' +
@@ -661,9 +895,18 @@ const volDisplay = Math.round(totalVol).toLocaleString() + 'kg';
     '<div class="dash-card"><div class="dash-val">'+totalSets+'</div><div class="dash-label">총 세트</div><div class="dash-sub">'+periodLabel+'</div></div>' +
     '<div class="dash-card"><div class="dash-val">'+totalEx+'</div><div class="dash-label">총 종목수</div><div class="dash-sub">'+periodLabel+'</div></div>' +
     '</div>' +
-    (topEx.length ? '<div class="dash-section-title">많이 한 운동 TOP 5</div>'+rankHtml : '') +
+    (topEx.length ? '<div class="dash-section-title">많이 한 운동 TOP 5 <span style="font-size:10px;color:var(--text-dim);font-weight:400;letter-spacing:0">탭하면 기록 보기</span></div>'+rankHtml : '') +
     '<div class="dash-section-title" style="margin-top:24px">운동 히트맵 (13주)</div>' +
     '<div class="heatmap-wrap">'+heatmapHtml+'</div>';
+}
+
+// 통계 탭 TOP5 → 기록 탭으로 이동
+async function goToHistory(exName) {
+  switchView('history');
+  await initHistoryTab();
+  const sel = document.getElementById('history-select');
+  sel.value = exName;
+  onHistoryExSelect(exName);
 }
 
 function showToast(msg) {
@@ -672,6 +915,7 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 1800);
 }
 </script>
+
 <datalist id="exercise-master">
 <option value="벤치프레스">
 <option value="스미스벤치프레스">
@@ -682,7 +926,6 @@ function showToast(msg) {
 <option value="덤벨플라이">
 <option value="케이블플라이">
 <option value="푸쉬업">
-
 <option value="랫풀다운">
 <option value="시티드로우">
 <option value="케이블로우">
@@ -690,7 +933,6 @@ function showToast(msg) {
 <option value="인클라인 덤벨로우">
 <option value="풀업">
 <option value="친업">
-
 <option value="숄더프레스">
 <option value="덤벨숄더프레스">
 <option value="오버헤드프레스">
@@ -698,7 +940,6 @@ function showToast(msg) {
 <option value="리어델트플라이">
 <option value="페이스풀">
 <option value="Y레이즈">
-
 <option value="스쿼트">
 <option value="오버헤드스쿼트">
 <option value="레그프레스">
@@ -710,17 +951,14 @@ function showToast(msg) {
 <option value="카프레이즈">
 <option value="힙어브덕션">
 <option value="힙어덕션">
-
 <option value="덤벨컬">
 <option value="해머컬">
 <option value="트라이셉스푸쉬다운">
 <option value="케이블푸쉬다운">
-
 <option value="AB슬라이드">
 <option value="크런치">
 <option value="레그레이즈">
 <option value="플랭크">
-
 <option value="러닝">
 <option value="인클라인워킹">
 <option value="천국의계단">

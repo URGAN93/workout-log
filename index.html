@@ -173,6 +173,29 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .history-no-select{text-align:center;padding:60px 0;color:var(--text-dim);}
 .history-count-badge{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:12px;}
 
+/* ── 추천 루틴 ── */
+.rec-section{margin-top:0;margin-bottom:20px;}
+.rec-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.rec-refresh-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:2px 4px;transition:color .15s;}
+.rec-refresh-btn:hover{color:var(--accent);}
+.rec-list{display:flex;flex-direction:column;gap:8px;}
+.rec-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.rec-item-header{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;}
+.rec-item-name{flex:1;font-size:14px;font-weight:500;}
+.rec-item-meta{font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.rec-item-chevron{color:var(--text-dim);font-size:16px;transition:transform .2s;}
+.rec-item.open .rec-item-chevron{transform:rotate(180deg);}
+.rec-item-body{display:none;border-top:1px solid var(--border);padding:10px 14px 14px;}
+.rec-item.open .rec-item-body{display:block;}
+.rec-ex-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);}
+.rec-ex-row:last-child{border-bottom:none;}
+.rec-ex-name{font-size:13px;font-weight:500;}
+.rec-ex-detail{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);}
+.rec-add-btn{margin-top:12px;width:100%;background:var(--accent-dim);border:1px solid rgba(200,241,53,.3);color:var(--accent);border-radius:8px;padding:9px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;text-align:center;}
+.rec-add-btn:hover{background:rgba(200,241,53,.2);}
+.rec-loading{font-size:13px;color:var(--text-dim);padding:12px 0;text-align:center;}
+.rec-empty{font-size:13px;color:var(--text-dim);padding:8px 0;}
+
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#111;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:999;}
 .toast.show{opacity:1;}
 @media(max-width:480px){
@@ -182,6 +205,11 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
   .user-email{display:none;}
   .history-set-table th,.history-set-table td{padding:6px 10px;}
 }
+.section-collapsible{cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+.section-chevron{color:var(--text-dim);font-size:16px;transition:transform .2s;}
+.section-open .section-chevron{transform:rotate(180deg);}
+.section-body{display:none;}
+.section-open .section-body{display:block;}
 </style>
 </head>
 <body>
@@ -291,22 +319,43 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
           <div class="chip" onclick="quickAdd('런닝')">런닝</div>
         </div>
       </div>
-      <div class="routine-section">
-        <div class="section-title">루틴 불러오기</div>
-        <div class="routine-list" id="routine-list"></div>
-        <div class="save-routine-row" id="save-routine-row" style="display:none;">
-          <input class="save-routine-input" id="routine-name-input" placeholder="루틴 이름 (예: 가슴·어깨 루틴)" maxlength="30" onkeydown="if(event.key==='Enter')saveRoutine()">
-          <button class="save-routine-btn" onclick="saveRoutine()">저장</button>
-          <button class="save-routine-btn" onclick="hideSaveRoutine()">취소</button>
-        </div>
-        <button class="show-save-btn" id="show-save-btn" onclick="showSaveRoutine()">+ 현재 운동을 루틴으로 저장</button>
-      </div>
-      <div class="memo-area">
-        <div class="memo-label">메모</div>
-        <textarea class="memo-input" id="memo-input" placeholder="오늘 운동 메모..." rows="3" oninput="scheduleSave()"></textarea>
-      </div>
+<!-- 추천 루틴 -->
+<div class="rec-section section-open" id="rec-section">
+  <div class="rec-section-header section-collapsible" onclick="toggleSection('rec-section')">
+    <div class="section-title" style="margin-bottom:0">추천 루틴</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="rec-refresh-btn" onclick="event.stopPropagation();buildRecommendedRoutines(true)" title="새로고침">↻</button>
+      <div class="section-chevron">⌃</div>
     </div>
   </div>
+  <div class="section-body">
+    <div class="rec-list" id="rec-list">
+      <div class="rec-loading">기록 분석 중...</div>
+    </div>
+  </div>
+</div>
+
+<!-- 내 루틴 -->
+<div class="routine-section section-open" id="my-routine-section">
+  <div class="section-title section-collapsible" onclick="toggleSection('my-routine-section')" style="display:flex;align-items:center;justify-content:space-between;">
+    <span>내 루틴</span>
+    <div class="section-chevron">⌃</div>
+  </div>
+  <div class="section-body">
+    <div class="routine-list" id="routine-list"></div>
+    <div class="save-routine-row" id="save-routine-row" style="display:none;">
+      <input class="save-routine-input" id="routine-name-input" placeholder="루틴 이름 (예: 가슴·어깨 루틴)" maxlength="30" onkeydown="if(event.key==='Enter')saveRoutine()">
+      <button class="save-routine-btn" onclick="saveRoutine()">저장</button>
+      <button class="save-routine-btn" onclick="hideSaveRoutine()">취소</button>
+    </div>
+    <button class="show-save-btn" id="show-save-btn" onclick="showSaveRoutine()">+ 현재 운동을 루틴으로 저장</button>
+  </div>
+</div>
+
+<!-- 메모 -->
+<div class="memo-area">
+  <div class="memo-label">메모</div>
+  <textarea class="memo-input" id="memo-input" placeholder="오늘 운동 메모..." rows="3" oninput="scheduleSave()"></textarea>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -379,6 +428,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('user-email-display').textContent = currentUser.email;
     currentDate = todayStr();
     render();
+    buildRecommendedRoutines();
   }
 });
 
@@ -907,6 +957,197 @@ async function goToHistory(exName) {
   const sel = document.getElementById('history-select');
   sel.value = exName;
   onHistoryExSelect(exName);
+}
+
+// ── 추천 루틴 ──────────────────────────────────────────────
+
+// 카테고리별 운동 조합 DB
+const ROUTINE_DB = [
+  {
+    id: 'chest', name: '가슴 루틴',
+    exercises: ['벤치프레스','스미스벤치프레스','인클라인 벤치프레스','인클라인벤치프레스',
+      '인클라인 덤벨프레스','인클라인덤벨프레스','체스트프레스','덤벨플라이',
+      '펙덱플라이','케이블플라이','푸쉬업','딥스','디클라인벤치프레스']
+  },
+  {
+    id: 'back', name: '등 루틴',
+    exercises: ['랫풀다운','시티드로우','케이블로우','머신로우','인클라인 덤벨로우',
+      '인클라인덤벨로우','풀업','친업','바벨로우','티바로우','데드리프트','스트레이트암풀다운']
+  },
+  {
+    id: 'legs', name: '하체 루틴',
+    exercises: ['스쿼트','레그프레스','레그익스텐션','레그컬','루마니안데드리프트',
+      '런지','불가리안스플릿스쿼트','카프레이즈','힙어브덕션','힙어덕션',
+      '핵스쿼트','레그프레스 카프레이즈','오버헤드스쿼트']
+  },
+  {
+    id: 'shoulder', name: '어깨 루틴',
+    exercises: ['숄더프레스','덤벨숄더프레스','오버헤드프레스','OHP','밀리터리프레스',
+      '사이드레터럴레이즈','리어델트플라이','페이스풀','Y레이즈','프론트레이즈',
+      '케이블사이드레이즈','업라이트로우']
+  },
+  {
+    id: 'chest_tri', name: '가슴+삼두 루틴',
+    exercises: ['벤치프레스','스미스벤치프레스','인클라인 벤치프레스','인클라인벤치프레스',
+      '인클라인 덤벨프레스','체스트프레스','덤벨플라이','펙덱플라이','케이블플라이','푸쉬업','딥스',
+      '트라이셉스푸쉬다운','케이블푸쉬다운','트라이셉스','오버헤드트라이셉스','라잉트라이셉스']
+  },
+  {
+    id: 'back_bi', name: '등+이두 루틴',
+    exercises: ['랫풀다운','시티드로우','케이블로우','머신로우','인클라인 덤벨로우',
+      '풀업','친업','바벨로우','데드리프트',
+      '덤벨컬','해머컬','바벨컬','케이블컬','인클라인덤벨컬','컨센트레이션컬']
+  },
+  {
+    id: 'chest_back', name: '가슴+등 루틴',
+    exercises: ['벤치프레스','스미스벤치프레스','인클라인 벤치프레스','체스트프레스','덤벨플라이','펙덱플라이',
+      '랫풀다운','시티드로우','케이블로우','머신로우','풀업','친업','바벨로우']
+  },
+  {
+    id: 'shoulder_arm', name: '어깨+팔 루틴',
+    exercises: ['숄더프레스','덤벨숄더프레스','오버헤드프레스','OHP','사이드레터럴레이즈',
+      '리어델트플라이','페이스풀','프론트레이즈',
+      '덤벨컬','해머컬','바벨컬','케이블컬',
+      '트라이셉스푸쉬다운','케이블푸쉬다운','트라이셉스','오버헤드트라이셉스']
+  },
+  {
+    id: 'legs_shoulder', name: '하체+어깨 루틴',
+    exercises: ['스쿼트','레그프레스','레그익스텐션','레그컬','루마니안데드리프트',
+      '런지','불가리안스플릿스쿼트','카프레이즈',
+      '숄더프레스','덤벨숄더프레스','오버헤드프레스','사이드레터럴레이즈','리어델트플라이']
+  },
+  {
+    id: 'upper', name: '상체 루틴',
+    exercises: ['벤치프레스','스미스벤치프레스','인클라인 벤치프레스','체스트프레스','덤벨플라이',
+      '랫풀다운','시티드로우','케이블로우','풀업','바벨로우',
+      '숄더프레스','덤벨숄더프레스','오버헤드프레스','사이드레터럴레이즈',
+      '덤벨컬','해머컬','트라이셉스푸쉬다운','케이블푸쉬다운']
+  },
+  {
+    id: 'full', name: '전신 루틴',
+    exercises: ['스쿼트','데드리프트','벤치프레스','오버헤드프레스','랫풀다운',
+      '레그프레스','케이블로우','덤벨숄더프레스','덤벨컬','트라이셉스푸쉬다운',
+      '런지','루마니안데드리프트','풀업','푸쉬업','플랭크']
+  },
+];
+
+let recCache = null;
+
+async function buildRecommendedRoutines(force = false) {
+  if (recCache && !force) { renderRecList(recCache); return; }
+  const recList = document.getElementById('rec-list');
+  recList.innerHTML = '<div class="rec-loading">기록 분석 중...</div>';
+
+  setSyncing(true);
+  const { data } = await sb.from('workouts').select('date,exercises').eq('user_id', currentUser.id).order('date', { ascending: false });
+  setSyncing(false);
+
+  const rows = (data || []).filter(r => r.exercises && r.exercises.length);
+  if (rows.length < 3) {
+    recList.innerHTML = '<div class="rec-empty">기록이 더 쌓이면 추천 루틴이 생성됩니다 (최소 3일)</div>';
+    return;
+  }
+
+  // 내 기록에서 운동별 세션 전체 세트 수집 (최고 중량 기준)
+  const exBest = {};  // 운동명 → 최고 중량 날의 세트 배열 전체
+  const exCount = {}; // 운동명 → 총 횟수
+  rows.forEach(row => {
+    row.exercises.forEach(ex => {
+      exCount[ex.name] = (exCount[ex.name] || 0) + 1;
+      const maxW = Math.max(...ex.sets.map(s => parseFloat(s.weight) || 0));
+      const prevMaxW = exBest[ex.name]
+        ? Math.max(...exBest[ex.name].map(s => parseFloat(s.weight) || 0))
+        : -1;
+      if (maxW > prevMaxW) exBest[ex.name] = ex.sets;
+    });
+  });
+
+  const myExercises = new Set(Object.keys(exCount));
+
+  // 각 루틴 카테고리별로 내가 해본 운동 필터링 → 5~7개 추려서 루틴 생성
+  const finalRoutines = [];
+
+  ROUTINE_DB.forEach(category => {
+    // 내 기록에 있는 운동만 필터
+    const matched = category.exercises.filter(name => myExercises.has(name));
+
+    // 최소 3개 이상 있어야 루틴 의미 있음
+    if (matched.length < 3) return;
+
+    // 많이 한 순서로 정렬 후 5~7개로 제한
+    const sorted = matched
+      .sort((a, b) => (exCount[b] || 0) - (exCount[a] || 0))
+      .slice(0, 6);
+
+    const routineExercises = sorted.map(name => ({
+      name,
+      sets: (exBest[name] || [{weight:'', reps:''}]).map(s => ({
+        weight: s.weight || '', reps: s.reps || '', note: ''
+      }))
+    }));
+
+    finalRoutines.push({
+      name: category.name,
+      basedOn: matched.length + '개 운동 보유',
+      exercises: routineExercises
+    });
+  });
+
+  if (!finalRoutines.length) {
+    recList.innerHTML = '<div class="rec-empty">아직 기록이 부족해요. 운동을 더 기록하면 추천이 나타납니다!</div>';
+    return;
+  }
+
+  recCache = finalRoutines;
+  renderRecList(finalRoutines);
+}
+
+function renderRecList(routines) {
+  const recList = document.getElementById('rec-list');
+  recList.innerHTML = routines.map((r, i) => {
+    const exPreview = r.exercises.slice(0, 3).map(e => e.name).join(', ') + (r.exercises.length > 3 ? '...' : '');
+    const exRows = r.exercises.map(ex => {
+      const lastSet = ex.sets[ex.sets.length - 1] || {};
+      const detail = [
+        ex.sets.length + '세트',
+        lastSet.weight ? lastSet.weight + 'kg' : '',
+        lastSet.reps ? lastSet.reps + '회' : ''
+      ].filter(Boolean).join(' · ');
+      return '<div class="rec-ex-row"><div class="rec-ex-name">' + ex.name + '</div><div class="rec-ex-detail">' + detail + '</div></div>';
+    }).join('');
+
+    return '<div class="rec-item" id="rec-item-' + i + '">' +
+      '<div class="rec-item-header" onclick="toggleRecItem(' + i + ')">' +
+      '<div class="rec-item-name">' + r.name + '</div>' +
+      '<div class="rec-item-meta">' + r.exercises.length + '종목 · ' + r.basedOn + '</div>' +
+      '<div class="rec-item-chevron">⌃</div>' +
+      '</div>' +
+      '<div class="rec-item-body">' +
+      exRows +
+      '<button class="rec-add-btn" onclick="addRecRoutine(' + i + ')">+ 오늘 운동에 추가</button>' +
+      '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function toggleRecItem(i) {
+  document.getElementById('rec-item-' + i).classList.toggle('open');
+}
+
+async function addRecRoutine(i) {
+  if (!recCache || !recCache[i]) return;
+  const routine = recCache[i];
+  const dayData = await loadDay(currentDate);
+  routine.exercises.forEach(ex => {
+    dayData.exercises.push({ name: ex.name, sets: ex.sets.map(s => ({ weight: s.weight, reps: s.reps, note: '' })) });
+  });
+  await saveDay(currentDate, dayData);
+  render();
+  showToast('추천 루틴 추가됨');
+}
+
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('section-open');
 }
 
 function showToast(msg) {

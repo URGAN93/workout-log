@@ -789,11 +789,11 @@ async function renderFatigue() {
 
     // intensity 변환: 피로도 색상 → intensity (0~10)
     function hoursToIntensity(hours) {
-      if (hours < 24) return 10;
-      if (hours < 48) return 7;
-      if (hours < 72) return 4;
-      return 1;
-    }
+  if (hours < 24) return 10;
+  if (hours < 48) return 6;
+  if (hours < 72) return 3;
+  return 1;
+}
 
     // 근육 그룹 → body-muscles ID 변환
     const frontState = {};
@@ -920,8 +920,7 @@ function closeVideoModal() {
 async function loadVideoList(exName) {
   const videoList = document.getElementById('video-list');
   videoList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px">불러오는 중...</div>';
-  const folder = currentUser.id + '/' + exName.replace(/\s/g,'_');
-  const { data, error } = await sb.storage.from('videos').list(folder);
+const folder = currentUser.id + '/' + encodeURIComponent(exName).replace(/%/g, '_');  const { data, error } = await sb.storage.from('videos').list(folder);
   if (error || !data || !data.length) {
     videoList.innerHTML = '<div class="video-empty">업로드된 영상이 없습니다<br><span style="font-size:11px;color:var(--text-dim)">↑ 업로드 버튼으로 추가하세요</span></div>';
     return;
@@ -958,8 +957,7 @@ async function onVideoFileSelect(input) {
   if (!file) return;
   const exName = currentVideoEx;
   if (!exName) return;
-  const folder = currentUser.id + '/' + exName.replace(/\s/g,'_');
-  const ext = file.name.split('.').pop().replace(/[^a-zA-Z0-9]/g,'') || 'mp4';
+const folder = currentUser.id + '/' + encodeURIComponent(exName).replace(/%/g, '_');  const ext = file.name.split('.').pop().replace(/[^a-zA-Z0-9]/g,'') || 'mp4';
   const fileName = Date.now() + '.' + ext;
   const path = folder + '/' + fileName;
   const progress = document.getElementById('video-upload-progress');

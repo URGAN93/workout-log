@@ -15,7 +15,7 @@
   --danger:#ff5a5a;--radius:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:15px;min-height:100vh;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:15px;min-height:100vh;overscroll-behavior-y:auto;}
 #auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
 .auth-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;width:100%;max-width:380px;}
 .auth-logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px;}
@@ -35,7 +35,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .auth-msg.success{color:var(--accent);}
 #app-screen{display:none;}
 header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
-.logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;}
+.logo{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;}
 .user-area{display:flex;align-items:center;gap:10px;}
 .user-email{font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;}
 .logout-btn{background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;}
@@ -46,11 +46,29 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .view-tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:20px;}
 .view-tab{flex:1;padding:7px;text-align:center;font-size:13px;cursor:pointer;border-radius:6px;color:var(--text-muted);transition:all .15s;}
 .view-tab.active{background:var(--surface2);color:var(--text);}
-.date-nav{display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+.date-nav{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
 .date-nav button{background:var(--surface);border:1px solid var(--border);color:var(--text);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
 .date-nav button:hover{background:var(--surface2);}
 .date-label{flex:1;text-align:center;font-family:'DM Mono',monospace;font-size:14px;color:var(--text);cursor:pointer;}
 #date-input{position:absolute;opacity:0;pointer-events:none;}
+
+/* ── 근육 피로도 ── */
+.fatigue-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;}
+.fatigue-title{font-size:11px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;}
+.fatigue-body{display:flex;align-items:center;gap:16px;}
+.fatigue-svg-wrap{position:relative;flex-shrink:0;}
+.fatigue-svg-wrap svg{display:block;}
+.fatigue-legend{display:flex;flex-direction:column;gap:6px;flex:1;}
+.fatigue-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);}
+.fatigue-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.fatigue-muscle-list{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;}
+.fatigue-tag{font-size:11px;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;}
+.fatigue-tag.red{background:rgba(255,90,90,.18);color:#ff8080;border:1px solid rgba(255,90,90,.3);}
+.fatigue-tag.yellow{background:rgba(255,200,50,.15);color:#ffc832;border:1px solid rgba(255,200,50,.25);}
+.fatigue-tag.green{background:rgba(80,220,120,.15);color:#50dc78;border:1px solid rgba(80,220,120,.25);}
+.fatigue-tag.blue{background:rgba(80,160,255,.15);color:#80b4ff;border:1px solid rgba(80,160,255,.25);}
+.fatigue-empty{font-size:12px;color:var(--text-dim);padding:4px 0;}
+
 .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
 .summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;}
 .summary-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--accent);line-height:1;}
@@ -69,16 +87,26 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .sets-body{display:none;border-top:1px solid var(--border);}
 .exercise-card.open .sets-body{display:block;}
 .sets-header{display:grid;grid-template-columns:36px 1fr 1fr 36px 40px;gap:8px;padding:10px 16px 6px;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
-.set-row{display:grid;grid-template-columns:36px 1fr 1fr 36px 40px;gap:8px;align-items:center;padding:6px 16px;border-top:1px solid var(--border);}.set-num{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim);text-align:center;}
+.set-row{display:grid;grid-template-columns:36px 1fr 1fr 36px 40px;gap:8px;align-items:center;padding:6px 16px;border-top:1px solid var(--border);}
+.set-row.done{opacity:.45;}
+.set-num{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim);text-align:center;}
 .set-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 10px;width:100%;font-family:'DM Mono',monospace;font-size:14px;text-align:center;-webkit-appearance:none;}
 .set-input:focus{outline:none;border-color:var(--accent);}
+.set-check{width:20px;height:20px;accent-color:var(--accent);cursor:pointer;justify-self:center;}
 .del-set-btn{background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:18px;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
 .del-set-btn:hover{color:var(--danger);}
+.ex-memo-wrap{padding:10px 16px 0;}
+.ex-memo{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:none;}
+.ex-memo:focus{outline:none;border-color:var(--accent);}
+.ex-memo::placeholder{color:var(--text-dim);}
+.video-btns{display:flex;gap:8px;padding:10px 16px 0;}
+.video-btn{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:8px;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .15s;}
+.video-btn:hover{border-color:var(--accent);color:var(--accent);}
 .card-footer{display:flex;gap:8px;padding:10px 16px 14px;align-items:center;}
 .add-set-btn{background:var(--accent-dim);border:1px solid rgba(200,241,53,.3);color:var(--accent);border-radius:8px;padding:7px 16px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
 .del-exercise-btn{margin-left:auto;background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;}
 .del-exercise-btn:hover{color:var(--danger);border-color:var(--danger);}
-.add-exercise-area{margin-top:16px;background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius);padding:16px;}
+.add-exercise-area{margin-top:16px;margin-bottom:20px;background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius);padding:16px;}
 .add-exercise-row{display:flex;gap:8px;align-items:center;}
 .add-exercise-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 14px;font-size:15px;font-family:'Noto Sans KR',sans-serif;}
 .add-exercise-input:focus{outline:none;border-color:var(--accent);}
@@ -148,7 +176,6 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .heatmap-row{display:flex;gap:3px;margin-bottom:3px;}
 .heatmap-cell{width:14px;height:14px;border-radius:3px;background:var(--surface2);flex-shrink:0;}
 .heatmap-cell.l2{background:rgba(200,241,53,.5);}
-/* ── 기록 탭 ── */
 .history-select-wrap{position:relative;margin-bottom:24px;}
 .history-select-label{font-size:12px;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
 .history-select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 40px 12px 16px;font-size:15px;font-family:'Noto Sans KR',sans-serif;appearance:none;-webkit-appearance:none;cursor:pointer;transition:border-color .15s;}
@@ -163,14 +190,12 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .history-set-table th{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;padding:8px 16px 6px;text-align:center;font-weight:400;}
 .history-set-table td{font-family:'DM Mono',monospace;font-size:13px;text-align:center;padding:6px 16px;border-top:1px solid var(--border);color:var(--text);}
 .history-set-table td.set-idx{color:var(--text-dim);font-size:12px;}
-.history-set-table td.note-cell{font-family:'Noto Sans KR',sans-serif;font-size:12px;color:var(--text-muted);}
 .history-vol{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);padding:7px 16px 10px;text-align:right;}
 .history-empty{text-align:center;padding:60px 0;color:var(--text-dim);}
 .history-empty-icon{font-size:36px;margin-bottom:12px;}
 .history-empty-text{font-size:14px;}
 .history-no-select{text-align:center;padding:60px 0;color:var(--text-dim);}
 .history-count-badge{font-size:11px;color:var(--text-dim);font-family:'DM Mono',monospace;margin-bottom:12px;}
-/* ── 추천 루틴 ── */
 .rec-section{margin-top:0;margin-bottom:20px;}
 .rec-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0;}
 .rec-refresh-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:2px 4px;transition:color .15s;}
@@ -192,7 +217,6 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .rec-add-btn:hover{background:rgba(200,241,53,.2);}
 .rec-loading{font-size:13px;color:var(--text-dim);padding:12px 0;text-align:center;}
 .rec-empty{font-size:13px;color:var(--text-dim);padding:8px 0;}
-/* ── 여닫기 ── */
 .section-collapsible{cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
 .section-chevron{color:var(--text-dim);font-size:16px;transition:transform .2s;}
 .section-open .section-chevron{transform:rotate(180deg);}
@@ -200,110 +224,44 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .section-open .section-body{display:block;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#111;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:999;}
 .toast.show{opacity:1;}
+
+/* 동영상 모달 */
+.video-modal{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+.video-modal.show{display:flex;}
+.video-modal-inner{width:100%;max-width:420px;}
+.video-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.video-modal-title{font-size:15px;font-weight:500;}
+.video-modal-close{background:none;border:none;color:var(--text-muted);font-size:24px;cursor:pointer;line-height:1;}
+.video-list{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;}
+.video-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.video-item:hover{border-color:var(--accent);}
+.video-item-icon{font-size:20px;}
+.video-item-name{flex:1;font-size:13px;}
+.video-item-del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:2px 4px;}
+.video-item-del:hover{color:var(--danger);}
+.video-player{width:100%;border-radius:12px;background:#000;margin-bottom:12px;max-height:70vh;}
+.video-empty{text-align:center;padding:32px 0;color:var(--text-dim);font-size:13px;}
+.video-upload-btn{width:100%;background:var(--accent-dim);border:1px solid rgba(200,241,53,.3);color:var(--accent);border-radius:8px;padding:10px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:10px;}
+.video-upload-progress{font-size:12px;color:var(--accent);text-align:center;margin-top:8px;font-family:'DM Mono',monospace;}
+
+/* 섹션 카드 스타일 */
+.rec-section-header,.routine-section > .section-title{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;transition:border-color .15s,background .15s;font-size:14px;color:var(--text);font-weight:500;letter-spacing:.03em;}
+.rec-section-header:hover,.routine-section > .section-title:hover{border-color:var(--accent);background:var(--surface2);}
+.rec-section.section-open .rec-section-header,.routine-section.section-open > .section-title{border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent;}
+.rec-section.section-open .section-body,.routine-section.section-open .section-body{background:var(--surface);border:1px solid var(--border);border-top:none;border-bottom-left-radius:var(--radius);border-bottom-right-radius:var(--radius);padding:12px 16px 16px;}
+.rec-item-chevron,.section-chevron{font-size:12px;color:var(--text-dim);font-style:normal;}
+
+/* 당겨서 새로고침 */
+.pull-indicator{position:fixed;top:0;left:50%;transform:translateX(-50%);background:var(--accent);color:#111;font-size:12px;font-weight:700;padding:6px 16px;border-radius:0 0 10px 10px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9999;}
+.pull-indicator.show{opacity:1;}
+
 @media(max-width:480px){
-.sets-header,.set-row{grid-template-columns:28px 1fr 1fr 32px 32px;gap:6px;padding:6px 12px;}  .summary-val{font-size:18px;}
+  .sets-header,.set-row{grid-template-columns:28px 1fr 1fr 32px 32px;gap:6px;padding:6px 12px;}
+  .summary-val{font-size:18px;}
   header{padding:12px 16px;}
   .user-email{display:none;}
   .history-set-table th,.history-set-table td{padding:6px 10px;}
 }
-/* 섹션 헤더 개선 */
-.rec-section-header .section-title,
-.routine-section .section-title span {
-  font-size:14px;
-  color:var(--text);
-  font-weight:500;
-  letter-spacing:.03em;
-}
-.rec-item-chevron,
-.section-chevron {
-  font-size:12px;
-  color:var(--text-dim);
-  font-style:normal;
-}
-.section-open .rec-item-chevron,
-.section-open .section-chevron {
-  transform:rotate(180deg);
-}
-
-.rec-section-header,
-.routine-section > .section-title {
-  padding: 4px 0;
-  transition: color .15s;
-  color: var(--text-muted);
-}
-.rec-section.section-open .rec-section-header .section-title,
-.routine-section.section-open > .section-title span {
-  color: var(--text);
-}
-.add-exercise-area { margin-bottom: 16px; }
-
-/* 추천루틴 / 내루틴 카드 헤더 */
-.rec-section-header,
-.routine-section > .section-title {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  transition: border-color .15s, background .15s;
-}
-.rec-section-header:hover,
-.routine-section > .section-title:hover {
-  border-color: var(--accent);
-  background: var(--surface2);
-}
-.rec-section.section-open .rec-section-header,
-.routine-section.section-open > .section-title {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-bottom-color: transparent;
-}
-.rec-section.section-open .section-body,
-.routine-section.section-open .section-body {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-top: none;
-  border-bottom-left-radius: var(--radius);
-  border-bottom-right-radius: var(--radius);
-  padding: 12px 16px 16px;
-}
-.add-exercise-area { margin-bottom: 20px; }
-
-.rec-section-header {
-  margin-bottom: 0;
-}
-.rec-section .section-body {
-  margin-top: 0;
-}
-
-.pull-indicator {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--accent);
-  color: #111;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 16px;
-  border-radius: 0 0 10px 10px;
-  opacity: 0;
-  transition: opacity .2s;
-  pointer-events: none;
-  z-index: 9999;
-}
-.pull-indicator.show { opacity: 1; }
-
-.set-check { width:20px;height:20px;accent-color:var(--accent);cursor:pointer;flex-shrink:0; }
-.set-row.done { opacity:.45; }
-.set-row.done .set-input { text-decoration:line-through; }
-.ex-check-wrap { display:flex;align-items:center;gap:6px;margin-right:4px; }
-.ex-check { width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0; }
-.exercise-card.completed .exercise-header { opacity:.6; }
-.exercise-card.completed .exercise-name { text-decoration:line-through;color:var(--text-muted); }
-.ex-memo { width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:none;margin:0 16px 12px;width:calc(100% - 32px); }
-.ex-memo:focus { outline:none;border-color:var(--accent); }
-.ex-memo::placeholder { color:var(--text-dim); }
-
 </style>
 </head>
 <body>
@@ -328,7 +286,7 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 
 <div id="app-screen">
   <header>
-    <div class="logo" onclick="location.reload()" style="cursor:pointer">WORKOUT LOG</div>
+    <div class="logo" onclick="location.reload()">WORKOUT LOG</div>
     <div class="user-area">
       <span class="sync-indicator" id="sync-indicator">●</span>
       <span class="user-email" id="user-email-display"></span>
@@ -389,6 +347,13 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
         <button onclick="changeDate(1)">›</button>
         <input type="date" id="date-input" onchange="onDatePick(this.value)">
       </div>
+
+      <!-- 근육 피로도 -->
+      <div class="fatigue-wrap" id="fatigue-wrap">
+        <div class="fatigue-title">근육 피로도</div>
+        <div id="fatigue-content"><div class="fatigue-empty">기록이 없습니다</div></div>
+      </div>
+
       <div class="summary">
         <div class="summary-card"><div class="summary-val" id="sum-exercises">0</div><div class="summary-label">종목</div></div>
         <div class="summary-card"><div class="summary-val" id="sum-sets">0</div><div class="summary-label">총 세트</div></div>
@@ -409,7 +374,7 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
           <div class="chip" onclick="quickAdd('케이블로우')">케이블로우</div>
           <div class="chip" onclick="quickAdd('레그프레스')">레그프레스</div>
           <div class="chip" onclick="quickAdd('덤벨컬')">덤벨컬</div>
-          <div class="chip" onclick="quickAdd('트라이셉스')">트라이셉스</div>
+          <div class="chip" onclick="quickAdd('케이블푸쉬다운')">케이블푸쉬다운</div>
           <div class="chip" onclick="quickAdd('런닝')">런닝</div>
         </div>
       </div>
@@ -417,9 +382,10 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
       <!-- 추천 루틴 -->
       <div class="rec-section" id="rec-section">
         <div class="rec-section-header section-collapsible" onclick="toggleSection('rec-section')">
-          <div class="section-title" style="margin-bottom:0">추천 루틴</div>
+          <div style="margin-bottom:0">추천 루틴</div>
           <div style="display:flex;align-items:center;gap:8px;">
             <button class="rec-refresh-btn" onclick="event.stopPropagation();buildRecommendedRoutines(true)" title="새로고침">↻</button>
+            <span class="section-chevron">⌃</span>
           </div>
         </div>
         <div class="section-body">
@@ -433,6 +399,7 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
       <div class="routine-section" id="my-routine-section">
         <div class="section-title section-collapsible" onclick="toggleSection('my-routine-section')" style="display:flex;align-items:center;justify-content:space-between;">
           <span>내 루틴</span>
+          <span class="section-chevron">⌃</span>
         </div>
         <div class="section-body">
           <div class="routine-list" id="routine-list"></div>
@@ -450,10 +417,25 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
         <div class="memo-label">메모</div>
         <textarea class="memo-input" id="memo-input" placeholder="오늘 운동 메모..." rows="3" oninput="scheduleSave()"></textarea>
       </div>
-    </div><!-- /day-view -->
-  </div><!-- /container -->
-</div><!-- /app-screen -->
+    </div>
+  </div>
+</div>
 
+<!-- 동영상 모달 -->
+<div class="video-modal" id="video-modal">
+  <div class="video-modal-inner">
+    <div class="video-modal-header">
+      <div class="video-modal-title" id="video-modal-title"></div>
+      <button class="video-modal-close" onclick="closeVideoModal()">×</button>
+    </div>
+    <video class="video-player" id="video-player" controls playsinline style="display:none"></video>
+    <div class="video-list" id="video-list"></div>
+    <div class="video-upload-progress" id="video-upload-progress"></div>
+    <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="onVideoFileSelect(this)">
+  </div>
+</div>
+
+<div class="pull-indicator" id="pull-indicator">↓ 당겨서 새로고침</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -469,6 +451,7 @@ let saveTimer = null;
 let calViewYear, calViewMonth;
 let dashPeriod = 'week';
 let currentView = 'day';
+let currentVideoEx = null;
 
 function todayStr() {
   const d = new Date();
@@ -523,11 +506,10 @@ sb.auth.onAuthStateChange(async (event, session) => {
     currentDate = todayStr();
     render();
     buildRecommendedRoutines();
-    loadExerciseMaster(); // ← DB에서 자동완성 목록 로드
+    loadExerciseMaster();
   }
 });
 
-// ── datalist DB 연동 ──────────────────────────────────────
 async function loadExerciseMaster() {
   const { data } = await sb.from('exercise_master').select('name').eq('user_id', currentUser.id);
   if (!data || !data.length) return;
@@ -535,9 +517,7 @@ async function loadExerciseMaster() {
   const existing = new Set(Array.from(dl.options).map(o => o.value));
   data.forEach(row => {
     if (!existing.has(row.name)) {
-      const opt = document.createElement('option');
-      opt.value = row.name;
-      dl.appendChild(opt);
+      const opt = document.createElement('option'); opt.value = row.name; dl.appendChild(opt);
     }
   });
 }
@@ -573,6 +553,98 @@ function setSyncing(on) {
   if (el) el.className = 'sync-indicator' + (on ? ' syncing' : '');
 }
 
+// ── 근육 피로도 ──────────────────────────────────────────
+const MUSCLE_MAP = {
+  // 가슴
+  '벤치프레스':'가슴','스미스벤치프레스':'가슴','인클라인 벤치프레스':'가슴','인클라인벤치프레스':'가슴',
+  '인클라인 덤벨프레스':'가슴','인클라인덤벨프레스':'가슴','체스트프레스':'가슴','인클라인 머신 프레스':'가슴',
+  '덤벨플라이':'가슴','펙덱플라이':'가슴','케이블플라이':'가슴','푸쉬업':'가슴','덤벨프레스':'가슴',
+  // 등
+  '랫풀다운':'등','시티드로우':'등','케이블로우':'등','머신로우':'등','인클라인 덤벨로우':'등',
+  '인클라인덤벨로우':'등','풀업':'등','친업':'등','바벨로우':'등','티바로우':'등','데드리프트':'등',
+  '스트레이트암풀다운':'등','어시스트풀업':'등','암풀다운':'등','롱풀':'등',
+  // 어깨
+  '숄더프레스':'어깨','덤벨숄더프레스':'어깨','오버헤드프레스':'어깨','밀리터리프레스':'어깨',
+  '스미스숄더프레스':'어깨','사이드레터럴레이즈':'어깨','리어델트플라이':'어깨','페이스풀':'어깨',
+  'Y레이즈':'어깨','W레이즈':'어깨','프론트레이즈':'어깨','케이블사이드레이즈':'어깨',
+  '업라이트로우':'어깨','벤트오버레이즈':'어깨','밴트오버레이즈':'어깨','슈러그':'어깨',
+  // 하체
+  '스쿼트':'하체','오버헤드스쿼트':'하체','핵스쿼트':'하체','레그프레스':'하체',
+  '레그익스텐션':'하체','레그컬':'하체','루마니안데드리프트':'하체','런지':'하체',
+  '불가리안스플릿스쿼트':'하체','카프레이즈':'하체','힙어브덕션':'하체','힙어덕션':'하체',
+  // 이두
+  '덤벨컬':'이두','해머컬':'이두','바벨컬':'이두','케이블컬':'이두','인클라인덤벨컬':'이두','컨센트레이션컬':'이두',
+  // 삼두
+  '트라이셉스푸쉬다운':'삼두','케이블푸쉬다운':'삼두','트라이셉스':'삼두','오버헤드트라이셉스':'삼두',
+  '라잉트라이셉스':'삼두','로프푸쉬다운':'삼두','덤벨오버헤드익스텐션':'삼두',
+  // 복근
+  'AB슬라이드':'복근','크런치':'복근','레그레이즈':'복근','플랭크':'복근',
+  // 유산소
+  '런닝':'유산소','러닝':'유산소','인클라인워킹':'유산소','천국의계단':'유산소','걷기':'유산소',
+};
+
+function getFatigueColor(hours) {
+  if (hours < 24) return 'red';
+  if (hours < 48) return 'yellow';
+  if (hours < 72) return 'green';
+  return 'blue';
+}
+function getFatigueLabel(color) {
+  return {red:'피로',yellow:'회복중',green:'거의회복',blue:'완전회복'}[color];
+}
+function getFatigueColorHex(color) {
+  return {red:'#ff5a5a',yellow:'#ffc832',green:'#50dc78',blue:'#80b4ff'}[color];
+}
+
+async function renderFatigue() {
+  const content = document.getElementById('fatigue-content');
+  // 최근 7일 기록 불러오기
+  const d = new Date(); d.setDate(d.getDate()-7);
+  const fromDate = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const {data} = await sb.from('workouts').select('date,exercises').eq('user_id', currentUser.id).gte('date', fromDate).order('date', {ascending:false});
+  if (!data || !data.length) { content.innerHTML = '<div class="fatigue-empty">최근 운동 기록이 없습니다</div>'; return; }
+
+  // 근육별 마지막 운동 시간 계산
+  const muscleLastTime = {};
+  const now = new Date();
+  for (const row of data) {
+    const rowDate = new Date(row.date + 'T00:00:00');
+    const hours = (now - rowDate) / 3600000;
+    (row.exercises||[]).forEach(ex => {
+      const muscle = MUSCLE_MAP[ex.name];
+      if (muscle && (muscleLastTime[muscle] === undefined || hours < muscleLastTime[muscle])) {
+        muscleLastTime[muscle] = hours;
+      }
+    });
+  }
+
+  if (!Object.keys(muscleLastTime).length) { content.innerHTML = '<div class="fatigue-empty">최근 운동 기록이 없습니다</div>'; return; }
+
+  // 색상별로 그룹핑
+  const groups = {red:[], yellow:[], green:[], blue:[]};
+  Object.entries(muscleLastTime).forEach(([muscle, hours]) => {
+    groups[getFatigueColor(hours)].push({muscle, hours});
+  });
+
+  let html = '<div class="fatigue-muscle-list">';
+  ['red','yellow','green','blue'].forEach(color => {
+    groups[color].forEach(({muscle, hours}) => {
+      const h = Math.round(hours);
+      html += `<div class="fatigue-tag ${color}">${muscle} · ${h < 24 ? h+'시간' : Math.floor(h/24)+'일'} (${getFatigueLabel(color)})</div>`;
+    });
+  });
+  html += '</div>';
+
+  // 범례
+  html += '<div style="display:flex;gap:12px;margin-top:10px;flex-wrap:wrap;">';
+  [['red','0~24h 피로'],['yellow','24~48h 회복중'],['green','48~72h 거의회복'],['blue','72h+ 완전회복']].forEach(([c,l]) => {
+    html += `<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-muted)"><div style="width:8px;height:8px;border-radius:50%;background:${getFatigueColorHex(c)}"></div>${l}</div>`;
+  });
+  html += '</div>';
+
+  content.innerHTML = html;
+}
+
 async function render() {
   const dayData = await loadDay(currentDate);
   document.getElementById('date-display').textContent = formatDate(currentDate);
@@ -587,11 +659,12 @@ async function render() {
   document.getElementById('memo-input').value = dayData.memo || '';
   updateSummary(dayData);
   renderRoutineList();
+  renderFatigue();
 }
 
 function renderExercise(container, ex, ei) {
   const card = document.createElement('div');
-  card.className = 'exercise-card open' + (ex.done ? ' completed' : '');
+  card.className = 'exercise-card open';
   const vol = ex.sets.reduce((a,s) => a+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0), 0);
   let setsHtml = ex.sets.map((s,si) =>
     '<div class="set-row' + (s.done?' done':'') + '">' +
@@ -606,7 +679,6 @@ function renderExercise(container, ex, ei) {
   card.innerHTML =
     '<div class="exercise-header">' +
     '<div class="drag-handle">⠿</div>' +
-    '<div class="ex-check-wrap"><input class="ex-check" type="checkbox"' + (ex.done?' checked':'') + ' onchange="toggleExDone(' + ei + ',this.checked)" onclick="event.stopPropagation()"></div>' +
     '<div style="flex:1;display:flex;align-items:center;gap:10px;" onclick="toggleCard(this)">' +
     '<div class="exercise-name">' + ex.name + '</div>' +
     '<div class="exercise-badge">' + ex.sets.length + '세트 · ' + (vol>0?Math.round(vol)+'kg':'—') + '</div>' +
@@ -614,8 +686,13 @@ function renderExercise(container, ex, ei) {
     '</div>' +
     '</div>' +
     '<div class="sets-body">' +
-    '<div class="sets-header"><div style="text-align:center">세트</div><div style="text-align:center">무게(kg)</div><div style="text-align:center">횟수</div><div style="text-align:center">완료</div><div></div></div>' +    setsHtml +
-    '<textarea class="ex-memo" rows="1" placeholder="운동 메모..." onchange="updateExMemo(' + ei + ',this.value)">' + (ex.memo||'') + '</textarea>' +
+    '<div class="sets-header"><div style="text-align:center">세트</div><div style="text-align:center">무게(kg)</div><div style="text-align:center">횟수</div><div style="text-align:center">완료</div><div></div></div>' +
+    setsHtml +
+    '<div class="ex-memo-wrap"><textarea class="ex-memo" rows="1" placeholder="운동 메모..." onchange="updateExMemo(' + ei + ',this.value)">' + (ex.memo||'') + '</textarea></div>' +
+    '<div class="video-btns">' +
+    '<button class="video-btn" onclick="openVideoModal(\'' + ei + '\',\'' + ex.name.replace(/'/g,"\\'") + '\',false)">▶ 영상 보기</button>' +
+    '<button class="video-btn" onclick="openVideoModal(\'' + ei + '\',\'' + ex.name.replace(/'/g,"\\'") + '\',true)">↑ 업로드</button>' +
+    '</div>' +
     '<div class="card-footer">' +
     '<button class="add-set-btn" onclick="addSet(' + ei + ')">+ 세트 추가</button>' +
     '<button class="del-exercise-btn" onclick="deleteExercise(' + ei + ')">종목 삭제</button>' +
@@ -624,6 +701,104 @@ function renderExercise(container, ex, ei) {
 }
 
 function toggleCard(el) { el.closest('.exercise-card').classList.toggle('open'); }
+
+// ── 세트 체크 ────────────────────────────────────────────
+async function toggleSetDone(ei, si, checked) {
+  const dayData = await loadDay(currentDate);
+  dayData.exercises[ei].sets[si].done = checked;
+  const allDone = dayData.exercises[ei].sets.length > 0 && dayData.exercises[ei].sets.every(s => s.done);
+  dayData.exercises[ei].done = allDone;
+  await saveDay(currentDate, dayData);
+  render();
+}
+
+async function updateExMemo(ei, val) {
+  const dayData = await loadDay(currentDate);
+  dayData.exercises[ei].memo = val;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveDay(currentDate, dayData), 600);
+}
+
+// ── 동영상 ───────────────────────────────────────────────
+async function openVideoModal(ei, exName, uploadMode) {
+  currentVideoEx = exName;
+  document.getElementById('video-modal-title').textContent = exName;
+  document.getElementById('video-player').style.display = 'none';
+  document.getElementById('video-player').src = '';
+  document.getElementById('video-upload-progress').textContent = '';
+  document.getElementById('video-modal').classList.add('show');
+  if (uploadMode) {
+    document.getElementById('video-file-input').click();
+  } else {
+    await loadVideoList(exName);
+  }
+}
+
+function closeVideoModal() {
+  const player = document.getElementById('video-player');
+  player.pause();
+  player.src = '';
+  player.style.display = 'none';
+  document.getElementById('video-modal').classList.remove('show');
+  currentVideoEx = null;
+}
+
+async function loadVideoList(exName) {
+  const videoList = document.getElementById('video-list');
+  videoList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px">불러오는 중...</div>';
+  const folder = currentUser.id + '/' + exName.replace(/\s/g,'_');
+  const { data, error } = await sb.storage.from('videos').list(folder);
+  if (error || !data || !data.length) {
+    videoList.innerHTML = '<div class="video-empty">업로드된 영상이 없습니다<br><span style="font-size:11px;color:var(--text-dim)">↑ 업로드 버튼으로 추가하세요</span></div>';
+    return;
+  }
+  videoList.innerHTML = data.map((f,i) =>
+    '<div class="video-item" onclick="playVideo(\'' + folder + '/' + f.name + '\')">' +
+    '<div class="video-item-icon">▶</div>' +
+    '<div class="video-item-name">' + (i+1) + '. ' + f.name + '</div>' +
+    '<button class="video-item-del" onclick="event.stopPropagation();deleteVideo(\'' + folder + '/' + f.name + '\',\'' + exName + '\')" title="삭제">×</button>' +
+    '</div>'
+  ).join('');
+}
+
+async function playVideo(path) {
+  setSyncing(true);
+  const { data } = await sb.storage.from('videos').createSignedUrl(path, 3600);
+  setSyncing(false);
+  if (!data) { showToast('영상을 불러올 수 없습니다'); return; }
+  const player = document.getElementById('video-player');
+  player.src = data.signedUrl;
+  player.style.display = 'block';
+  player.play();
+}
+
+async function deleteVideo(path, exName) {
+  if (!confirm('이 영상을 삭제할까요?')) return;
+  await sb.storage.from('videos').remove([path]);
+  showToast('영상 삭제됨');
+  await loadVideoList(exName);
+}
+
+async function onVideoFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const exName = currentVideoEx;
+  if (!exName) return;
+  const folder = currentUser.id + '/' + exName.replace(/\s/g,'_');
+  const fileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+  const path = folder + '/' + fileName;
+  const progress = document.getElementById('video-upload-progress');
+  progress.textContent = '업로드 중...';
+  setSyncing(true);
+  const { error } = await sb.storage.from('videos').upload(path, file, { contentType: file.type });
+  setSyncing(false);
+  input.value = '';
+  if (error) { progress.textContent = '업로드 실패: ' + error.message; return; }
+  progress.textContent = '업로드 완료!';
+  showToast('영상 업로드됨');
+  await loadVideoList(exName);
+  setTimeout(() => { progress.textContent = ''; }, 2000);
+}
 
 let dragSrc = null;
 function initDragDrop(list) {
@@ -659,18 +834,20 @@ function updateSummary(dayData) {
 
 async function addExercise() {
   const input = document.getElementById('new-exercise-name');
-  const name = input.value.trim().replace(/\s+/g, ' '); // 공백 정규화
+  const name = input.value.trim().replace(/\s+/g, ' ');
   if (!name) { input.focus(); return; }
+  const dl = document.getElementById('exercise-master');
+  const existingNames = Array.from(dl.options).map(o => o.value);
+  if (!existingNames.includes(name)) {
+    if (!confirm('"' + name + '" 은 새로운 운동입니다. 추가할까요?')) { input.focus(); return; }
+  }
   const dayData = await loadDay(currentDate);
-  dayData.exercises.push({name:name, sets:[{weight:'',reps:'',note:''}]});
+  dayData.exercises.push({name:name, sets:[{weight:'',reps:'',note:'',done:false}], memo:''});
   await saveDay(currentDate, dayData);
   const { data: existing } = await sb.from('exercise_master').select('id').eq('user_id', currentUser.id).eq('name', name).maybeSingle();
   if (!existing) {
     await sb.from('exercise_master').insert({user_id: currentUser.id, name: name});
-    // datalist에도 즉시 추가
-    const dl = document.getElementById('exercise-master');
-    const existing2 = Array.from(dl.options).map(o => o.value);
-    if (!existing2.includes(name)) { const opt = document.createElement('option'); opt.value = name; dl.appendChild(opt); }
+    if (!existingNames.includes(name)) { const opt = document.createElement('option'); opt.value = name; dl.appendChild(opt); }
   }
   input.value = '';
   render();
@@ -682,7 +859,7 @@ function quickAdd(name) { document.getElementById('new-exercise-name').value = n
 async function addSet(ei) {
   const dayData = await loadDay(currentDate);
   const prev = dayData.exercises[ei].sets.slice(-1)[0] || {};
-  dayData.exercises[ei].sets.push({weight:prev.weight||'', reps:prev.reps||'', note:''});
+  dayData.exercises[ei].sets.push({weight:prev.weight||'', reps:prev.reps||'', note:'', done:false});
   await saveDay(currentDate, dayData);
   render();
 }
@@ -753,7 +930,7 @@ async function loadRoutine(idx) {
   const routine = routines[idx];
   if (!confirm('"' + routine.name + '" 루틴을 불러올까요?')) return;
   const dayData = await loadDay(currentDate);
-  routine.exercises.forEach(ex => { dayData.exercises.push({name:ex.name, sets:ex.sets.map(s=>({weight:s.weight,reps:s.reps,note:''}))}) });
+  routine.exercises.forEach(ex => { dayData.exercises.push({name:ex.name, sets:ex.sets.map(s=>({weight:s.weight,reps:s.reps,note:'',done:false})), memo:''}); });
   await saveDay(currentDate, dayData);
   render();
   showToast('루틴 불러오기 완료');
@@ -807,7 +984,6 @@ function switchView(v) {
   if (v==='history') initHistoryTab();
 }
 
-// ── 기록 탭 ──────────────────────────────────────────────
 async function initHistoryTab() {
   const sel = document.getElementById('history-select');
   const fromDate = (() => { const d = new Date(); d.setDate(d.getDate()-30); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
@@ -845,14 +1021,12 @@ async function onHistoryExSelect(name) {
   let html = '<div class="history-count-badge">최근 ' + sessions.length + '회 기록</div>';
   sessions.forEach(session => {
     const vol = session.sets.reduce((a,s) => a+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0), 0);
-    const hasNote = session.sets.some(s => s.note && s.note.trim());
-    const rowsHtml = session.sets.map((s, i) => '<tr><td class="set-idx">' + (i+1) + '</td><td>' + (s.weight?s.weight+'kg':'—') + '</td><td>' + (s.reps?s.reps+'회':'—') + '</td>' + (hasNote?'<td class="note-cell">'+(s.note||'—')+'</td>':'') + '</tr>').join('');
-    html += '<div class="history-session"><div class="history-session-header"><div class="history-session-date">' + formatDateShort(session.date) + '</div><div class="history-session-meta">' + session.sets.length + '세트' + (vol>0?' · '+Math.round(vol).toLocaleString()+'kg':'') + '</div></div><table class="history-set-table"><thead><tr><th>세트</th><th>무게</th><th>횟수</th>' + (hasNote?'<th>메모</th>':'') + '</tr></thead><tbody>' + rowsHtml + '</tbody></table>' + (vol>0?'<div class="history-vol">볼륨 '+Math.round(vol).toLocaleString()+' kg</div>':'') + '</div>';
+    const rowsHtml = session.sets.map((s, i) => '<tr><td class="set-idx">' + (i+1) + '</td><td>' + (s.weight?s.weight+'kg':'—') + '</td><td>' + (s.reps?s.reps+'회':'—') + '</td></tr>').join('');
+    html += '<div class="history-session"><div class="history-session-header"><div class="history-session-date">' + formatDateShort(session.date) + '</div><div class="history-session-meta">' + session.sets.length + '세트' + (vol>0?' · '+Math.round(vol).toLocaleString()+'kg':'') + '</div></div><table class="history-set-table"><thead><tr><th>세트</th><th>무게</th><th>횟수</th></tr></thead><tbody>' + rowsHtml + '</tbody></table>' + (vol>0?'<div class="history-vol">볼륨 '+Math.round(vol).toLocaleString()+' kg</div>':'') + '</div>';
   });
   content.innerHTML = html;
 }
 
-// ── 달력 ──────────────────────────────────────────────────
 async function renderCalendar() {
   const today = new Date();
   if (calViewYear===undefined) { calViewYear=today.getFullYear(); calViewMonth=today.getMonth(); }
@@ -879,7 +1053,6 @@ async function renderCalendar() {
 function calPrevMonth() { calViewMonth--; if(calViewMonth<0){calViewMonth=11;calViewYear--;} renderCalendar(); }
 function calNextMonth() { calViewMonth++; if(calViewMonth>11){calViewMonth=0;calViewYear++;} renderCalendar(); }
 
-// ── 통계 ──────────────────────────────────────────────────
 function switchDashPeriod(p) {
   dashPeriod = p;
   document.querySelectorAll('.dash-tab').forEach((t,i) => t.classList.toggle('active', ['week','month','all'][i]===p));
@@ -932,131 +1105,98 @@ async function goToHistory(exName) {
 
 // ── 추천 루틴 ──────────────────────────────────────────────
 const ROUTINE_DB = [
-  {
-    id:'chest', name:'가슴 루틴',
-    groups:[
-      ['벤치프레스','스미스벤치프레스','체스트프레스'],
-      ['인클라인 벤치프레스','인클라인벤치프레스','인클라인 덤벨프레스','인클라인덤벨프레스'],
-      ['덤벨플라이','펙덱플라이','케이블플라이'],
-      ['푸쉬업'],
-    ]
-  },
-  {
-    id:'back', name:'등 루틴',
-    groups:[
-      ['데드리프트'],
-      ['풀업','친업','바벨로우','티바로우'],
-      ['랫풀다운','머신로우'],
-      ['인클라인 덤벨로우','인클라인덤벨로우','시티드로우','케이블로우'],
-      ['스트레이트암풀다운'],
-    ]
-  },
-  {
-    id:'legs', name:'하체 루틴',
-    groups:[
-      ['스쿼트','오버헤드스쿼트','핵스쿼트'],
-      ['루마니안데드리프트'],
-      ['런지','불가리안스플릿스쿼트'],
-      ['레그프레스'],
-      ['레그익스텐션'],
-      ['레그컬'],
-      ['카프레이즈'],
-      ['힙어브덕션','힙어덕션'],
-    ]
-  },
-  {
-    id:'shoulder', name:'어깨 루틴',
-    groups:[
-      ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스','숄더프레스'],
-      ['사이드레터럴레이즈'],
-      ['리어델트플라이','Y레이즈'],
-      ['페이스풀','업라이트로우','프론트레이즈','케이블사이드레이즈'],
-    ]
-  },
-  {
-    id:'chest_tri', name:'가슴+삼두 루틴',
-    groups:[
-      ['벤치프레스','스미스벤치프레스','체스트프레스'],
-      ['인클라인 벤치프레스','인클라인벤치프레스','인클라인 덤벨프레스','인클라인덤벨프레스'],
-      ['덤벨플라이','펙덱플라이','케이블플라이'],
-      ['오버헤드트라이셉스','라잉트라이셉스','트라이셉스푸쉬다운','케이블푸쉬다운','트라이셉스'],
-    ]
-  },
-  {
-    id:'back_bi', name:'등+이두 루틴',
-    groups:[
-      ['데드리프트'],
-      ['풀업','친업','바벨로우','티바로우'],
-      ['랫풀다운','머신로우'],
-      ['인클라인 덤벨로우','인클라인덤벨로우','시티드로우','케이블로우'],
-      ['바벨컬','덤벨컬'],
-      ['해머컬','인클라인덤벨컬','컨센트레이션컬','케이블컬'],
-    ]
-  },
-  {
-    id:'chest_back', name:'가슴+등 루틴',
-    groups:[
-      ['벤치프레스','스미스벤치프레스','체스트프레스'],
-      ['인클라인 벤치프레스','인클라인벤치프레스','인클라인 덤벨프레스','인클라인덤벨프레스'],
-      ['덤벨플라이','펙덱플라이','케이블플라이'],
-      ['데드리프트'],
-      ['풀업','친업','바벨로우'],
-      ['랫풀다운','머신로우','시티드로우','케이블로우'],
-    ]
-  },
-  {
-    id:'shoulder_arm', name:'어깨+팔 루틴',
-    groups:[
-      ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스','숄더프레스'],
-      ['사이드레터럴레이즈'],
-      ['리어델트플라이','Y레이즈','페이스풀'],
-      ['바벨컬','덤벨컬'],
-      ['해머컬','인클라인덤벨컬','케이블컬'],
-      ['오버헤드트라이셉스','라잉트라이셉스','트라이셉스푸쉬다운','케이블푸쉬다운','트라이셉스'],
-    ]
-  },
-  {
-    id:'legs_shoulder', name:'하체+어깨 루틴',
-    groups:[
-      ['스쿼트','오버헤드스쿼트','핵스쿼트'],
-      ['루마니안데드리프트'],
-      ['런지','불가리안스플릿스쿼트'],
-      ['레그프레스'],
-      ['레그익스텐션'],
-      ['레그컬'],
-      ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스','숄더프레스'],
-      ['사이드레터럴레이즈'],
-      ['리어델트플라이','Y레이즈','페이스풀'],
-    ]
-  },
-  {
-    id:'upper', name:'상체 루틴',
-    groups:[
-      ['벤치프레스','스미스벤치프레스','체스트프레스'],
-      ['인클라인 벤치프레스','인클라인벤치프레스','인클라인 덤벨프레스','인클라인덤벨프레스'],
-      ['덤벨플라이','펙덱플라이','케이블플라이'],
-      ['풀업','친업','바벨로우'],
-      ['랫풀다운','머신로우','시티드로우','케이블로우'],
-      ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스','숄더프레스'],
-      ['사이드레터럴레이즈'],
-      ['바벨컬','덤벨컬'],
-      ['오버헤드트라이셉스','라잉트라이셉스','트라이셉스푸쉬다운','케이블푸쉬다운','트라이셉스'],
-    ]
-  },
-  {
-    id:'full', name:'전신 루틴',
-    groups:[
-      ['스쿼트'],
-      ['데드리프트'],
-      ['벤치프레스','스미스벤치프레스'],
-      ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스'],
-      ['풀업','친업','바벨로우'],
-      ['랫풀다운','머신로우','케이블로우'],
-      ['런지','불가리안스플릿스쿼트','레그프레스'],
-      ['덤벨컬','바벨컬'],
-      ['트라이셉스푸쉬다운','케이블푸쉬다운','트라이셉스'],
-    ]
-  },
+  { id:'chest', name:'가슴 루틴', groups:[
+    ['벤치프레스','스미스벤치프레스','체스트프레스'],
+    ['인클라인 벤치프레스','인클라인벤치프레스','인클라인 덤벨프레스','인클라인덤벨프레스'],
+    ['덤벨플라이','펙덱플라이','케이블플라이'],
+    ['푸쉬업'],
+  ]},
+  { id:'back', name:'등 루틴', groups:[
+    ['데드리프트'],
+    ['풀업','친업','바벨로우','티바로우'],
+    ['랫풀다운','어시스트풀업','암풀다운'],
+    ['인클라인 덤벨로우','인클라인덤벨로우','시티드로우','케이블로우','머신로우','롱풀'],
+    ['스트레이트암풀다운'],
+  ]},
+  { id:'legs', name:'하체 루틴', groups:[
+    ['스쿼트','오버헤드스쿼트','핵스쿼트'],
+    ['루마니안데드리프트'],
+    ['런지','불가리안스플릿스쿼트'],
+    ['레그프레스'],
+    ['레그익스텐션'],
+    ['레그컬'],
+    ['카프레이즈'],
+    ['힙어브덕션','힙어덕션'],
+  ]},
+  { id:'shoulder', name:'어깨 루틴', groups:[
+    ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스','숄더프레스','스미스숄더프레스'],
+    ['사이드레터럴레이즈'],
+    ['리어델트플라이','벤트오버레이즈','밴트오버레이즈','Y레이즈','W레이즈'],
+    ['페이스풀','업라이트로우','프론트레이즈','케이블사이드레이즈','슈러그'],
+  ]},
+  { id:'chest_tri', name:'가슴+삼두 루틴', groups:[
+    ['벤치프레스','스미스벤치프레스','체스트프레스'],
+    ['인클라인 벤치프레스','인클라인벤치프레스','인클라인 덤벨프레스','인클라인덤벨프레스'],
+    ['덤벨플라이','펙덱플라이','케이블플라이'],
+    ['덤벨오버헤드익스텐션','오버헤드트라이셉스','라잉트라이셉스','트라이셉스푸쉬다운','케이블푸쉬다운','로프푸쉬다운','트라이셉스'],
+  ]},
+  { id:'back_bi', name:'등+이두 루틴', groups:[
+    ['데드리프트'],
+    ['풀업','친업','바벨로우','티바로우'],
+    ['랫풀다운','어시스트풀업','암풀다운'],
+    ['인클라인 덤벨로우','인클라인덤벨로우','시티드로우','케이블로우','머신로우'],
+    ['바벨컬','덤벨컬'],
+    ['해머컬','인클라인덤벨컬','컨센트레이션컬','케이블컬'],
+  ]},
+  { id:'chest_back', name:'가슴+등 루틴', groups:[
+    ['벤치프레스','스미스벤치프레스','체스트프레스'],
+    ['인클라인 벤치프레스','인클라인벤치프레스','인클라인 덤벨프레스','인클라인덤벨프레스'],
+    ['덤벨플라이','펙덱플라이','케이블플라이'],
+    ['데드리프트'],
+    ['풀업','친업','바벨로우'],
+    ['랫풀다운','어시스트풀업','시티드로우','케이블로우','머신로우'],
+  ]},
+  { id:'shoulder_arm', name:'어깨+팔 루틴', groups:[
+    ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스','숄더프레스','스미스숄더프레스'],
+    ['사이드레터럴레이즈'],
+    ['리어델트플라이','벤트오버레이즈','Y레이즈','페이스풀'],
+    ['바벨컬','덤벨컬'],
+    ['해머컬','인클라인덤벨컬','케이블컬'],
+    ['덤벨오버헤드익스텐션','오버헤드트라이셉스','트라이셉스푸쉬다운','케이블푸쉬다운','로프푸쉬다운'],
+  ]},
+  { id:'legs_shoulder', name:'하체+어깨 루틴', groups:[
+    ['스쿼트','오버헤드스쿼트','핵스쿼트'],
+    ['루마니안데드리프트'],
+    ['런지','불가리안스플릿스쿼트'],
+    ['레그프레스'],
+    ['레그익스텐션'],
+    ['레그컬'],
+    ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스','숄더프레스'],
+    ['사이드레터럴레이즈'],
+    ['리어델트플라이','벤트오버레이즈','Y레이즈','페이스풀'],
+  ]},
+  { id:'upper', name:'상체 루틴', groups:[
+    ['벤치프레스','스미스벤치프레스','체스트프레스'],
+    ['인클라인 벤치프레스','인클라인벤치프레스','인클라인 덤벨프레스','인클라인덤벨프레스'],
+    ['덤벨플라이','펙덱플라이','케이블플라이'],
+    ['풀업','친업','바벨로우'],
+    ['랫풀다운','어시스트풀업','시티드로우','케이블로우','머신로우'],
+    ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스','숄더프레스'],
+    ['사이드레터럴레이즈'],
+    ['바벨컬','덤벨컬'],
+    ['트라이셉스푸쉬다운','케이블푸쉬다운','로프푸쉬다운'],
+  ]},
+  { id:'full', name:'전신 루틴', groups:[
+    ['스쿼트'],
+    ['데드리프트'],
+    ['벤치프레스','스미스벤치프레스'],
+    ['오버헤드프레스','밀리터리프레스','덤벨숄더프레스'],
+    ['풀업','친업','바벨로우'],
+    ['랫풀다운','어시스트풀업','케이블로우'],
+    ['런지','불가리안스플릿스쿼트','레그프레스'],
+    ['덤벨컬','바벨컬'],
+    ['트라이셉스푸쉬다운','케이블푸쉬다운','로프푸쉬다운'],
+  ]},
 ];
 
 let recCache = null;
@@ -1071,7 +1211,6 @@ async function buildRecommendedRoutines(force = false) {
   const rows = (data || []).filter(r => r.exercises && r.exercises.length);
   if (rows.length < 3) { recList.innerHTML = '<div class="rec-empty">기록이 더 쌓이면 추천 루틴이 생성됩니다 (최소 3일)</div>'; return; }
 
-  // 내가 기록한 운동별 최고 세트 & 횟수 수집
   const exBest = {};
   const exCount = {};
   rows.forEach(row => {
@@ -1088,16 +1227,14 @@ async function buildRecommendedRoutines(force = false) {
   ROUTINE_DB.forEach(category => {
     const selected = [];
     category.groups.forEach(group => {
-      // 그룹 내에서 내가 기록한 운동 중 배열 앞쪽(프리웨이트 우선) 순서로 1개 선택
       const pick = group.find(name => myExercises.has(name));
       if (pick) {
         selected.push({
           name: pick,
-          sets: (exBest[pick] || [{weight:'', reps:''}]).map(s => ({ weight: s.weight || '', reps: s.reps || '', note: '' }))
+          sets: (exBest[pick] || [{weight:'', reps:''}]).map(s => ({ weight: s.weight || '', reps: s.reps || '', note: '', done: false }))
         });
       }
     });
-    // 그룹에서 최소 3종목 이상 선택됐을 때만 추천
     if (selected.length >= 3) {
       finalRoutines.push({ name: category.name, basedOn: selected.length + '종목', exercises: selected });
     }
@@ -1134,7 +1271,7 @@ async function addRecRoutine(i) {
   if (!recCache || !recCache[i]) return;
   const routine = recCache[i];
   const dayData = await loadDay(currentDate);
-  routine.exercises.forEach(ex => { dayData.exercises.push({ name: ex.name, sets: ex.sets.map(s => ({ weight: s.weight, reps: s.reps, note: '' })) }); });
+  routine.exercises.forEach(ex => { dayData.exercises.push({ name: ex.name, sets: ex.sets.map(s => ({ weight: s.weight, reps: s.reps, note: '', done: false })), memo: '' }); });
   await saveDay(currentDate, dayData);
   render();
   showToast('추천 루틴 추가됨');
@@ -1142,58 +1279,26 @@ async function addRecRoutine(i) {
 
 function toggleSection(id) { document.getElementById(id).classList.toggle('section-open'); }
 
-async function toggleSetDone(ei, si, checked) {
-  const dayData = await loadDay(currentDate);
-  dayData.exercises[ei].sets[si].done = checked;
-  // 세트 전부 체크되면 운동도 자동 완료
-  const allDone = dayData.exercises[ei].sets.every(s => s.done);
-  dayData.exercises[ei].done = allDone;
-  await saveDay(currentDate, dayData);
-  render();
-}
-
-async function toggleExDone(ei, checked) {
-  const dayData = await loadDay(currentDate);
-  dayData.exercises[ei].done = checked;
-  // 운동 완료 체크 시 모든 세트도 같이 체크
-  dayData.exercises[ei].sets.forEach(s => s.done = checked);
-  await saveDay(currentDate, dayData);
-  render();
-}
-
-async function updateExMemo(ei, val) {
-  const dayData = await loadDay(currentDate);
-  dayData.exercises[ei].memo = val;
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => saveDay(currentDate, dayData), 600);
-}
-
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 1800);
 }
 
-// 당겨서 새로고침
+// ── 당겨서 새로고침 ───────────────────────────────────────
 (function() {
   let startY = 0, pulling = false;
-  const indicator = document.createElement('div');
-  indicator.className = 'pull-indicator';
-  indicator.textContent = '↓ 당겨서 새로고침';
-  document.body.appendChild(indicator);
-
+  const indicator = document.getElementById('pull-indicator');
   document.addEventListener('touchstart', e => {
     if (window.scrollY === 0) { startY = e.touches[0].clientY; pulling = true; }
   }, { passive: true });
-
   document.addEventListener('touchmove', e => {
     if (!pulling) return;
     const dy = e.touches[0].clientY - startY;
-    if (dy > 60) { indicator.textContent = '↑ 놓으면 새로고침'; }
-    else if (dy > 20) { indicator.textContent = '↓ 당겨서 새로고침'; }
+    if (dy > 60) indicator.textContent = '↑ 놓으면 새로고침';
+    else if (dy > 20) indicator.textContent = '↓ 당겨서 새로고침';
     indicator.classList.toggle('show', dy > 20);
   }, { passive: true });
-
   document.addEventListener('touchend', e => {
     if (!pulling) return;
     const dy = e.changedTouches[0].clientY - startY;
@@ -1202,7 +1307,6 @@ function showToast(msg) {
     pulling = false;
   });
 })();
-
 </script>
 
 <datalist id="exercise-master">
@@ -1210,11 +1314,13 @@ function showToast(msg) {
 <option value="스미스벤치프레스">
 <option value="인클라인 벤치프레스">
 <option value="인클라인 덤벨프레스">
+<option value="인클라인 머신 프레스">
 <option value="체스트프레스">
 <option value="펙덱플라이">
 <option value="덤벨플라이">
 <option value="케이블플라이">
 <option value="푸쉬업">
+<option value="덤벨프레스">
 <option value="랫풀다운">
 <option value="시티드로우">
 <option value="케이블로우">
@@ -1222,13 +1328,26 @@ function showToast(msg) {
 <option value="인클라인 덤벨로우">
 <option value="풀업">
 <option value="친업">
+<option value="어시스트풀업">
+<option value="바벨로우">
+<option value="티바로우">
+<option value="암풀다운">
+<option value="롱풀">
+<option value="스트레이트암풀다운">
 <option value="숄더프레스">
 <option value="덤벨숄더프레스">
 <option value="오버헤드프레스">
+<option value="스미스숄더프레스">
 <option value="사이드레터럴레이즈">
 <option value="리어델트플라이">
 <option value="페이스풀">
 <option value="Y레이즈">
+<option value="W레이즈">
+<option value="벤트오버레이즈">
+<option value="프론트레이즈">
+<option value="케이블사이드레이즈">
+<option value="업라이트로우">
+<option value="슈러그">
 <option value="스쿼트">
 <option value="오버헤드스쿼트">
 <option value="레그프레스">
@@ -1240,14 +1359,24 @@ function showToast(msg) {
 <option value="카프레이즈">
 <option value="힙어브덕션">
 <option value="힙어덕션">
+<option value="데드리프트">
 <option value="덤벨컬">
 <option value="해머컬">
+<option value="바벨컬">
+<option value="케이블컬">
+<option value="인클라인덤벨컬">
+<option value="컨센트레이션컬">
 <option value="트라이셉스푸쉬다운">
 <option value="케이블푸쉬다운">
+<option value="로프푸쉬다운">
+<option value="덤벨오버헤드익스텐션">
+<option value="오버헤드트라이셉스">
+<option value="라잉트라이셉스">
 <option value="AB슬라이드">
 <option value="크런치">
 <option value="레그레이즈">
 <option value="플랭크">
+<option value="런닝">
 <option value="러닝">
 <option value="인클라인워킹">
 <option value="천국의계단">

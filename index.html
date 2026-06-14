@@ -68,9 +68,8 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .exercise-card.open .chevron{transform:rotate(180deg);}
 .sets-body{display:none;border-top:1px solid var(--border);}
 .exercise-card.open .sets-body{display:block;}
-.sets-header{display:grid;grid-template-columns:36px 1fr 1fr 1fr 40px;gap:8px;padding:10px 16px 6px;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
-.set-row{display:grid;grid-template-columns:36px 1fr 1fr 1fr 40px;gap:8px;align-items:center;padding:6px 16px;border-top:1px solid var(--border);}
-.set-num{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim);text-align:center;}
+.sets-header{display:grid;grid-template-columns:36px 1fr 1fr 36px 40px;gap:8px;padding:10px 16px 6px;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
+.set-row{display:grid;grid-template-columns:36px 1fr 1fr 36px 40px;gap:8px;align-items:center;padding:6px 16px;border-top:1px solid var(--border);}.set-num{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-dim);text-align:center;}
 .set-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:7px 10px;width:100%;font-family:'DM Mono',monospace;font-size:14px;text-align:center;-webkit-appearance:none;}
 .set-input:focus{outline:none;border-color:var(--accent);}
 .del-set-btn{background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:18px;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;}
@@ -202,8 +201,7 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--accent);color:#111;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;z-index:999;}
 .toast.show{opacity:1;}
 @media(max-width:480px){
-  .sets-header,.set-row{grid-template-columns:28px 1fr 1fr 1fr 32px;gap:6px;padding:6px 12px;}
-  .summary-val{font-size:18px;}
+.sets-header,.set-row{grid-template-columns:28px 1fr 1fr 32px 32px;gap:6px;padding:6px 12px;}  .summary-val{font-size:18px;}
   header{padding:12px 16px;}
   .user-email{display:none;}
   .history-set-table th,.history-set-table td{padding:6px 10px;}
@@ -294,6 +292,17 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
   z-index: 9999;
 }
 .pull-indicator.show { opacity: 1; }
+
+.set-check { width:20px;height:20px;accent-color:var(--accent);cursor:pointer;flex-shrink:0; }
+.set-row.done { opacity:.45; }
+.set-row.done .set-input { text-decoration:line-through; }
+.ex-check-wrap { display:flex;align-items:center;gap:6px;margin-right:4px; }
+.ex-check { width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0; }
+.exercise-card.completed .exercise-header { opacity:.6; }
+.exercise-card.completed .exercise-name { text-decoration:line-through;color:var(--text-muted); }
+.ex-memo { width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;resize:none;margin:0 16px 12px;width:calc(100% - 32px); }
+.ex-memo:focus { outline:none;border-color:var(--accent); }
+.ex-memo::placeholder { color:var(--text-dim); }
 
 </style>
 </head>
@@ -582,14 +591,14 @@ async function render() {
 
 function renderExercise(container, ex, ei) {
   const card = document.createElement('div');
-  card.className = 'exercise-card open';
+  card.className = 'exercise-card open' + (ex.done ? ' completed' : '');
   const vol = ex.sets.reduce((a,s) => a+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0), 0);
   let setsHtml = ex.sets.map((s,si) =>
-    '<div class="set-row">' +
+    '<div class="set-row' + (s.done?' done':'') + '">' +
     '<div class="set-num">' + (si+1) + '</div>' +
     '<input class="set-input" type="number" inputmode="decimal" min="0" step="0.5" value="' + (s.weight||'') + '" placeholder="0" onchange="updateSet(' + ei + ',' + si + ',\'weight\',this.value)">' +
     '<input class="set-input" type="number" inputmode="numeric" min="0" step="1" value="' + (s.reps||'') + '" placeholder="0" onchange="updateSet(' + ei + ',' + si + ',\'reps\',this.value)">' +
-    '<input class="set-input" type="text" value="' + (s.note||'') + '" placeholder="—" onchange="updateSet(' + ei + ',' + si + ',\'note\',this.value)" style="font-size:12px">' +
+    '<input class="set-check" type="checkbox"' + (s.done?' checked':'') + ' onchange="toggleSetDone(' + ei + ',' + si + ',this.checked)">' +
     '<button class="del-set-btn" onclick="deleteSet(' + ei + ',' + si + ')">×</button>' +
     '</div>'
   ).join('');
@@ -597,6 +606,7 @@ function renderExercise(container, ex, ei) {
   card.innerHTML =
     '<div class="exercise-header">' +
     '<div class="drag-handle">⠿</div>' +
+    '<div class="ex-check-wrap"><input class="ex-check" type="checkbox"' + (ex.done?' checked':'') + ' onchange="toggleExDone(' + ei + ',this.checked)" onclick="event.stopPropagation()"></div>' +
     '<div style="flex:1;display:flex;align-items:center;gap:10px;" onclick="toggleCard(this)">' +
     '<div class="exercise-name">' + ex.name + '</div>' +
     '<div class="exercise-badge">' + ex.sets.length + '세트 · ' + (vol>0?Math.round(vol)+'kg':'—') + '</div>' +
@@ -604,8 +614,8 @@ function renderExercise(container, ex, ei) {
     '</div>' +
     '</div>' +
     '<div class="sets-body">' +
-    '<div class="sets-header"><div style="text-align:center">세트</div><div style="text-align:center">무게(kg)</div><div style="text-align:center">횟수</div><div style="text-align:center">메모</div><div></div></div>' +
-    setsHtml +
+    '<div class="sets-header"><div style="text-align:center">세트</div><div style="text-align:center">무게(kg)</div><div style="text-align:center">횟수</div><div style="text-align:center">완료</div><div></div></div>' +    setsHtml +
+    '<textarea class="ex-memo" rows="1" placeholder="운동 메모..." onchange="updateExMemo(' + ei + ',this.value)">' + (ex.memo||'') + '</textarea>' +
     '<div class="card-footer">' +
     '<button class="add-set-btn" onclick="addSet(' + ei + ')">+ 세트 추가</button>' +
     '<button class="del-exercise-btn" onclick="deleteExercise(' + ei + ')">종목 삭제</button>' +
@@ -1131,6 +1141,32 @@ async function addRecRoutine(i) {
 }
 
 function toggleSection(id) { document.getElementById(id).classList.toggle('section-open'); }
+
+async function toggleSetDone(ei, si, checked) {
+  const dayData = await loadDay(currentDate);
+  dayData.exercises[ei].sets[si].done = checked;
+  // 세트 전부 체크되면 운동도 자동 완료
+  const allDone = dayData.exercises[ei].sets.every(s => s.done);
+  dayData.exercises[ei].done = allDone;
+  await saveDay(currentDate, dayData);
+  render();
+}
+
+async function toggleExDone(ei, checked) {
+  const dayData = await loadDay(currentDate);
+  dayData.exercises[ei].done = checked;
+  // 운동 완료 체크 시 모든 세트도 같이 체크
+  dayData.exercises[ei].sets.forEach(s => s.done = checked);
+  await saveDay(currentDate, dayData);
+  render();
+}
+
+async function updateExMemo(ei, val) {
+  const dayData = await loadDay(currentDate);
+  dayData.exercises[ei].memo = val;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => saveDay(currentDate, dayData), 600);
+}
 
 function showToast(msg) {
   const t = document.getElementById('toast');

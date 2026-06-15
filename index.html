@@ -263,6 +263,24 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
   .user-email{display:none;}
   .history-set-table th,.history-set-table td{padding:6px 10px;}
 }
+.history-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;flex-shrink:0;}
+.history-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ex-history-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:none;align-items:flex-end;justify-content:center;}
+.ex-history-modal.show{display:flex;}
+.ex-history-inner{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:20px;max-height:60vh;overflow-y:auto;}
+.ex-history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.ex-history-title{font-size:15px;font-weight:500;}
+.ex-history-close{background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;}
+.ex-history-session{margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px;}
+.ex-history-session:last-child{border-bottom:none;padding-bottom:0;}
+.ex-history-date{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin-bottom:6px;}
+.ex-history-row{display:grid;grid-template-columns:28px 1fr 1fr;gap:8px;font-family:'DM Mono',monospace;font-size:13px;padding:3px 0;color:var(--text-muted);}
+.ex-history-row span{color:var(--text);}
+.ex-history-empty{text-align:center;padding:24px 0;color:var(--text-dim);font-size:13px;}
+.video-name-row{display:flex;gap:8px;margin-top:10px;}
+.video-name-input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font-size:14px;font-family:'Noto Sans KR',sans-serif;}
+.video-name-input:focus{outline:none;border-color:var(--accent);}
+.video-name-input::placeholder{color:var(--text-dim);}
 </style>
 </head>
 <body>
@@ -422,6 +440,17 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
   </div>
 </div>
 
+<!-- 운동 기록 팝업 -->
+<div class="ex-history-modal" id="ex-history-modal" onclick="closeExHistory()">
+  <div class="ex-history-inner" onclick="event.stopPropagation()">
+    <div class="ex-history-header">
+      <div class="ex-history-title" id="ex-history-title"></div>
+      <button class="ex-history-close" onclick="closeExHistory()">×</button>
+    </div>
+    <div id="ex-history-content"><div class="ex-history-empty">불러오는 중...</div></div>
+  </div>
+</div>
+
 <!-- 동영상 모달 -->
 <div class="video-modal" id="video-modal">
   <div class="video-modal-inner">
@@ -432,7 +461,8 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
     <video class="video-player" id="video-player" controls playsinline style="display:none"></video>
     <div class="video-list" id="video-list"></div>
     <div class="video-upload-progress" id="video-upload-progress"></div>
-    <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="onVideoFileSelect(this)">
+    <div class="video-name-row" id="video-name-row" style="display:none"><input class="video-name-input" id="video-name-input" placeholder="영상 이름 입력 (예: 와이드그립)" maxlength="20"><button class="confirm-btn" onclick="confirmVideoUpload()" style="padding:9px 14px;font-size:13px;">업로드</button></div>
+    <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="onVideoFileSelected(this)">
   </div>
 </div>
 
@@ -837,8 +867,11 @@ async function render() {
 
 function renderExercise(container, ex, ei) {
   const card = document.createElement('div');
-  card.className = 'exercise-card open';
-  const vol = ex.sets.reduce((a,s) => a+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0), 0);
+  const allDone = ex.sets.length > 0 && ex.sets.every(s => s.done);
+  card.className = 'exercise-card' + (allDone ? '' : ' open');
+  // 완료된 세트만 볼륨 계산
+  const vol = ex.sets.reduce((a,s) => a+(s.done?(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0):0), 0);
+  const doneSets = ex.sets.filter(s => s.done).length;
   let setsHtml = ex.sets.map((s,si) =>
     '<div class="set-row' + (s.done?' done':'') + '">' +
     '<div class="set-num">' + (si+1) + '</div>' +
@@ -848,13 +881,17 @@ function renderExercise(container, ex, ei) {
     '<button class="del-set-btn" onclick="deleteSet(' + ei + ',' + si + ')">×</button>' +
     '</div>'
   ).join('');
+  const safeName = ex.name.replace(/'/g,"\\'");
   card.dataset.ei = ei;
   card.innerHTML =
     '<div class="exercise-header">' +
     '<div class="drag-handle">⠿</div>' +
-    '<div style="flex:1;display:flex;align-items:center;gap:10px;" onclick="toggleCard(this)">' +
+    '<div style="flex:1;display:flex;align-items:center;gap:8px;">' +
     '<div class="exercise-name">' + ex.name + '</div>' +
-    '<div class="exercise-badge">' + ex.sets.length + '세트 · ' + (vol>0?Math.round(vol)+'kg':'—') + '</div>' +
+    '<button class="history-btn" onclick="event.stopPropagation();showExHistory(\'' + safeName + '\')" title="이전 기록">기록</button>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="toggleCard(this)">' +
+    '<div class="exercise-badge">' + (allDone?doneSets:doneSets+'/'+ex.sets.length) + '세트' + (vol>0?' · '+Math.round(vol)+'kg':'') + '</div>' +
     '<div class="chevron">⌃</div>' +
     '</div>' +
     '</div>' +
@@ -863,8 +900,8 @@ function renderExercise(container, ex, ei) {
     setsHtml +
     '<div class="ex-memo-wrap"><textarea class="ex-memo" rows="1" placeholder="운동 메모..." onchange="updateExMemo(' + ei + ',this.value)">' + (ex.memo||'') + '</textarea></div>' +
     '<div class="video-btns">' +
-    '<button class="video-btn" onclick="openVideoModal(\'' + ei + '\',\'' + ex.name.replace(/'/g,"\\'") + '\',false)">▶ 영상 보기</button>' +
-    '<button class="video-btn" onclick="openVideoModal(\'' + ei + '\',\'' + ex.name.replace(/'/g,"\\'") + '\',true)">↑ 업로드</button>' +
+    '<button class="video-btn" onclick="openVideoModal(\'' + ei + '\',\'' + safeName + '\',false)">▶ 영상 보기</button>' +
+    '<button class="video-btn" onclick="openVideoModal(\'' + ei + '\',\'' + safeName + '\',true)">↑ 업로드</button>' +
     '</div>' +
     '<div class="card-footer">' +
     '<button class="add-set-btn" onclick="addSet(' + ei + ')">+ 세트 추가</button>' +
@@ -892,6 +929,30 @@ async function updateExMemo(ei, val) {
   saveTimer = setTimeout(() => saveDay(currentDate, dayData), 600);
 }
 
+// ── 운동 기록 팝업 ────────────────────────────────────────
+async function showExHistory(exName) {
+  document.getElementById('ex-history-title').textContent = exName + ' 최근 기록';
+  document.getElementById('ex-history-modal').classList.add('show');
+  const content = document.getElementById('ex-history-content');
+  content.innerHTML = '<div class="ex-history-empty">불러오는 중...</div>';
+  const {data} = await sb.from('workouts').select('date,exercises').eq('user_id', currentUser.id).order('date', {ascending:false});
+  const sessions = [];
+  for (const row of (data||[])) {
+    if (row.date === currentDate) continue; // 오늘 제외
+    const ex = (row.exercises||[]).find(e => e.name === exName);
+    if (ex && ex.sets && ex.sets.length) { sessions.push({date: row.date, sets: ex.sets}); if (sessions.length >= 3) break; }
+  }
+  if (!sessions.length) { content.innerHTML = '<div class="ex-history-empty">이전 기록이 없습니다</div>'; return; }
+  content.innerHTML = sessions.map(s => {
+    const rows = s.sets.map((set,i) =>
+      '<div class="ex-history-row"><div style="color:var(--text-dim)">' + (i+1) + '</div><span>' + (set.weight||'—') + 'kg</span><span>' + (set.reps||'—') + '회</span></div>'
+    ).join('');
+    const vol = s.sets.reduce((a,set)=>a+(parseFloat(set.weight)||0)*(parseFloat(set.reps)||0),0);
+    return '<div class="ex-history-session"><div class="ex-history-date">' + formatDateShort(s.date) + (vol>0?' · '+Math.round(vol)+'kg':'') + '</div>' + rows + '</div>';
+  }).join('');
+}
+function closeExHistory() { document.getElementById('ex-history-modal').classList.remove('show'); }
+
 // ── 동영상 ───────────────────────────────────────────────
 async function openVideoModal(ei, exName, uploadMode) {
   currentVideoEx = exName;
@@ -899,12 +960,47 @@ async function openVideoModal(ei, exName, uploadMode) {
   document.getElementById('video-player').style.display = 'none';
   document.getElementById('video-player').src = '';
   document.getElementById('video-upload-progress').textContent = '';
+  document.getElementById('video-name-row').style.display = 'none';
+  document.getElementById('video-name-input').value = '';
   document.getElementById('video-modal').classList.add('show');
   if (uploadMode) {
     document.getElementById('video-file-input').click();
   } else {
     await loadVideoList(exName);
   }
+}
+
+let pendingVideoFile = null;
+function onVideoFileSelected(input) {
+  const file = input.files[0];
+  if (!file) return;
+  pendingVideoFile = file;
+  document.getElementById('video-name-row').style.display = 'flex';
+  document.getElementById('video-name-input').focus();
+}
+
+async function confirmVideoUpload() {
+  const file = pendingVideoFile;
+  const exName = currentVideoEx;
+  if (!file || !exName) return;
+  const nameInput = document.getElementById('video-name-input').value.trim();
+  const ext = file.name.split('.').pop().replace(/[^a-zA-Z0-9]/g,'') || 'mp4';
+  const fileName = (nameInput || Date.now().toString()) + '.' + ext;
+  const folder = currentUser.id + '/' + exNameToFolder(exName);
+  const path = folder + '/' + fileName;
+  const progress = document.getElementById('video-upload-progress');
+  progress.textContent = '업로드 중...';
+  document.getElementById('video-name-row').style.display = 'none';
+  setSyncing(true);
+  const { error } = await sb.storage.from('videos').upload(path, file, { contentType: file.type });
+  setSyncing(false);
+  document.getElementById('video-file-input').value = '';
+  pendingVideoFile = null;
+  if (error) { progress.textContent = '업로드 실패: ' + error.message; return; }
+  progress.textContent = '업로드 완료!';
+  showToast('영상 업로드됨');
+  await loadVideoList(exName);
+  setTimeout(() => { progress.textContent = ''; }, 2000);
 }
 
 function closeVideoModal() {
@@ -917,12 +1013,16 @@ function closeVideoModal() {
 }
 
 function exNameToFolder(exName) {
-  let hash = 0;
+  let safe = '';
   for (let i = 0; i < exName.length; i++) {
-    hash = ((hash << 5) - hash) + exName.charCodeAt(i);
-    hash |= 0;
+    const code = exName.charCodeAt(i);
+    if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 48 && code <= 57)) {
+      safe += exName[i];
+    } else {
+      safe += code.toString(16);
+    }
   }
-  return Math.abs(hash).toString(36);
+  return safe.slice(0, 40);
 }
 
 async function loadVideoList(exName) {
@@ -961,28 +1061,6 @@ async function deleteVideo(path, exName) {
   await loadVideoList(exName);
 }
 
-async function onVideoFileSelect(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const exName = currentVideoEx;
-  if (!exName) return;
-  const folder = currentUser.id + '/' + exNameToFolder(exName);
-  const ext = file.name.split('.').pop().replace(/[^a-zA-Z0-9]/g,'') || 'mp4';
-  const fileName = Date.now() + '.' + ext;
-  const path = folder + '/' + fileName;
-  const progress = document.getElementById('video-upload-progress');
-  progress.textContent = '업로드 중...';
-  setSyncing(true);
-  const { error } = await sb.storage.from('videos').upload(path, file, { contentType: file.type });
-  setSyncing(false);
-  input.value = '';
-  if (error) { progress.textContent = '업로드 실패: ' + error.message; return; }
-  progress.textContent = '업로드 완료!';
-  showToast('영상 업로드됨');
-  await loadVideoList(exName);
-  setTimeout(() => { progress.textContent = ''; }, 2000);
-}
-
 let dragSrc = null;
 function initDragDrop(list) {
   list.querySelectorAll('.exercise-card').forEach(card => {
@@ -1009,9 +1087,11 @@ async function saveDragOrder(list) {
 }
 
 function updateSummary(dayData) {
-  const vol = dayData.exercises.reduce((a,ex) => a+ex.sets.reduce((b,s) => b+(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0),0),0);
-  document.getElementById('sum-exercises').textContent = dayData.exercises.length;
-  document.getElementById('sum-sets').textContent = dayData.exercises.reduce((a,ex) => a+ex.sets.length, 0);
+  const doneSets = dayData.exercises.reduce((a,ex) => a+ex.sets.filter(s=>s.done).length, 0);
+  const vol = dayData.exercises.reduce((a,ex) => a+ex.sets.reduce((b,s) => b+(s.done?(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0):0),0),0);
+  const doneEx = dayData.exercises.filter(ex => ex.sets.length > 0 && ex.sets.every(s=>s.done)).length;
+  document.getElementById('sum-exercises').textContent = doneEx + '/' + dayData.exercises.length;
+  document.getElementById('sum-sets').textContent = doneSets;
   document.getElementById('sum-volume').textContent = Math.round(vol).toLocaleString() + 'kg';
 }
 

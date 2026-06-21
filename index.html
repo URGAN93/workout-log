@@ -464,6 +464,10 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
     <video class="video-player" id="video-player" controls playsinline style="display:none"></video>
     <div class="video-list" id="video-list"></div>
     <div class="video-upload-progress" id="video-upload-progress"></div>
+    <div class="video-link-row" style="display:flex;gap:8px;margin-top:10px;">
+  <input class="video-name-input" id="video-link-input" placeholder="유튜브(일부공개) 링크 붙여넣기" style="flex:1">
+  <button class="confirm-btn" onclick="addVideoLink()" style="padding:9px 14px;font-size:13px;">추가</button>
+</div>
     <div class="video-name-row" id="video-name-row" style="display:none"><input class="video-name-input" id="video-name-input" placeholder="영상 이름 입력 (예: 와이드그립)" maxlength="20"><button class="confirm-btn" onclick="confirmVideoUpload()" style="padding:9px 14px;font-size:13px;">업로드</button></div>
     <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="onVideoFileSelected(this)">
   </div>

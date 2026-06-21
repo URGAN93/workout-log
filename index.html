@@ -655,111 +655,61 @@ function buildBodySVG(muscleColors, side) {
 
   if (side === 'front') {
     return `<svg viewBox="0 0 120 280" width="110" height="260" xmlns="http://www.w3.org/2000/svg">
-  <!-- 머리 -->
   <ellipse cx="60" cy="22" rx="16" ry="18" fill="${skin}" stroke="#555" stroke-width="0.5"/>
-  <!-- 목 -->
   <rect x="53" y="36" width="14" height="12" rx="4" fill="${skin}"/>
-  <!-- 몸통 베이스 -->
   <rect x="32" y="48" width="56" height="72" rx="8" fill="${skin}" stroke="#555" stroke-width="0.5"/>
-
-  <!-- 가슴 좌 -->
   <ellipse cx="47" cy="68" rx="13" ry="11" fill="${c('가슴')}" opacity="0.85"/>
-  <!-- 가슴 우 -->
   <ellipse cx="73" cy="68" rx="13" ry="11" fill="${c('가슴')}" opacity="0.85"/>
-
-  <!-- 어깨 좌 -->
   <ellipse cx="27" cy="58" rx="10" ry="9" fill="${c('어깨')}" opacity="0.85"/>
-  <!-- 어깨 우 -->
   <ellipse cx="93" cy="58" rx="10" ry="9" fill="${c('어깨')}" opacity="0.85"/>
-
-  <!-- 복근 -->
   <rect x="50" y="82" width="8" height="7" rx="2" fill="${c('복근')}" opacity="0.8"/>
   <rect x="62" y="82" width="8" height="7" rx="2" fill="${c('복근')}" opacity="0.8"/>
   <rect x="50" y="92" width="8" height="7" rx="2" fill="${c('복근')}" opacity="0.8"/>
   <rect x="62" y="92" width="8" height="7" rx="2" fill="${c('복근')}" opacity="0.8"/>
   <rect x="50" y="102" width="8" height="7" rx="2" fill="${c('복근')}" opacity="0.8"/>
   <rect x="62" y="102" width="8" height="7" rx="2" fill="${c('복근')}" opacity="0.8"/>
-
-  <!-- 팔 좌 (이두) -->
   <rect x="14" y="66" width="13" height="38" rx="6" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="15" y="68" width="11" height="22" rx="5" fill="${c('이두')}" opacity="0.85"/>
-  <!-- 팔 우 (이두) -->
   <rect x="93" y="66" width="13" height="38" rx="6" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="94" y="68" width="11" height="22" rx="5" fill="${c('이두')}" opacity="0.85"/>
-
-  <!-- 팔뚝 좌 -->
   <rect x="14" y="104" width="13" height="30" rx="6" fill="${skin}" stroke="#555" stroke-width="0.5"/>
-  <!-- 팔뚝 우 -->
   <rect x="93" y="104" width="13" height="30" rx="6" fill="${skin}" stroke="#555" stroke-width="0.5"/>
-
-  <!-- 하체 베이스 -->
-  <!-- 허벅지 좌 -->
   <rect x="34" y="122" width="22" height="60" rx="8" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="35" y="124" width="20" height="56" rx="7" fill="${c('하체')}" opacity="0.8"/>
-  <!-- 허벅지 우 -->
   <rect x="64" y="122" width="22" height="60" rx="8" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="65" y="124" width="20" height="56" rx="7" fill="${c('하체')}" opacity="0.8"/>
-
-  <!-- 종아리 좌 -->
   <rect x="36" y="184" width="18" height="50" rx="7" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="37" y="186" width="16" height="30" rx="6" fill="${c('하체')}" opacity="0.6"/>
-  <!-- 종아리 우 -->
   <rect x="66" y="184" width="18" height="50" rx="7" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="67" y="186" width="16" height="30" rx="6" fill="${c('하체')}" opacity="0.6"/>
-
-  <!-- 발 -->
   <ellipse cx="45" cy="238" rx="11" ry="6" fill="${skin}"/>
   <ellipse cx="75" cy="238" rx="11" ry="6" fill="${skin}"/>
 </svg>`;
   } else {
     return `<svg viewBox="0 0 120 280" width="110" height="260" xmlns="http://www.w3.org/2000/svg">
-  <!-- 머리 -->
   <ellipse cx="60" cy="22" rx="16" ry="18" fill="${skin}" stroke="#555" stroke-width="0.5"/>
-  <!-- 목 -->
   <rect x="53" y="36" width="14" height="12" rx="4" fill="${skin}"/>
-  <!-- 몸통 베이스 -->
   <rect x="32" y="48" width="56" height="72" rx="8" fill="${skin}" stroke="#555" stroke-width="0.5"/>
-
-  <!-- 등 (승모근+광배근) -->
   <ellipse cx="60" cy="62" rx="22" ry="10" fill="${c('등')}" opacity="0.85"/>
   <rect x="38" y="68" width="44" height="40" rx="6" fill="${c('등')}" opacity="0.8"/>
-
-  <!-- 어깨 좌 -->
   <ellipse cx="27" cy="58" rx="10" ry="9" fill="${c('어깨')}" opacity="0.85"/>
-  <!-- 어깨 우 -->
   <ellipse cx="93" cy="58" rx="10" ry="9" fill="${c('어깨')}" opacity="0.85"/>
-
-  <!-- 팔 좌 (삼두) -->
   <rect x="14" y="66" width="13" height="38" rx="6" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="15" y="68" width="11" height="22" rx="5" fill="${c('삼두')}" opacity="0.85"/>
-  <!-- 팔 우 (삼두) -->
   <rect x="93" y="66" width="13" height="38" rx="6" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="94" y="68" width="11" height="22" rx="5" fill="${c('삼두')}" opacity="0.85"/>
-
-  <!-- 팔뚝 좌 -->
   <rect x="14" y="104" width="13" height="30" rx="6" fill="${skin}" stroke="#555" stroke-width="0.5"/>
-  <!-- 팔뚝 우 -->
   <rect x="93" y="104" width="13" height="30" rx="6" fill="${skin}" stroke="#555" stroke-width="0.5"/>
-
-  <!-- 엉덩이 -->
   <ellipse cx="46" cy="128" rx="14" ry="10" fill="${c('하체')}" opacity="0.7"/>
   <ellipse cx="74" cy="128" rx="14" ry="10" fill="${c('하체')}" opacity="0.7"/>
-
-  <!-- 허벅지 뒤 좌 -->
   <rect x="34" y="122" width="22" height="60" rx="8" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="35" y="130" width="20" height="50" rx="7" fill="${c('하체')}" opacity="0.75"/>
-  <!-- 허벅지 뒤 우 -->
   <rect x="64" y="122" width="22" height="60" rx="8" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="65" y="130" width="20" height="50" rx="7" fill="${c('하체')}" opacity="0.75"/>
-
-  <!-- 종아리 좌 -->
   <rect x="36" y="184" width="18" height="50" rx="7" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="37" y="186" width="16" height="32" rx="6" fill="${c('하체')}" opacity="0.65"/>
-  <!-- 종아리 우 -->
   <rect x="66" y="184" width="18" height="50" rx="7" fill="${skin}" stroke="#555" stroke-width="0.5"/>
   <rect x="67" y="186" width="16" height="32" rx="6" fill="${c('하체')}" opacity="0.65"/>
-
-  <!-- 발 -->
   <ellipse cx="45" cy="238" rx="11" ry="6" fill="${skin}"/>
   <ellipse cx="75" cy="238" rx="11" ry="6" fill="${skin}"/>
 </svg>`;
@@ -768,6 +718,7 @@ function buildBodySVG(muscleColors, side) {
 
 async function renderFatigue() {
   const content = document.getElementById('fatigue-content');
+  if (!content) return;
   const d = new Date(); d.setDate(d.getDate()-7);
   const fromDate = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   const {data} = await sb.from('workouts').select('date,exercises').eq('user_id', currentUser.id).gte('date', fromDate).order('date', {ascending:false});
@@ -788,7 +739,6 @@ async function renderFatigue() {
 
   if (!Object.keys(muscleLastTime).length) { content.innerHTML = '<div class="fatigue-empty">최근 운동 기록이 없습니다</div>'; return; }
 
-  // 범례 아이템
   const legendItems = Object.entries(muscleLastTime).map(([muscle, hours]) => {
     const color = getFatigueColor(hours);
     const hex = getFatigueColorHex(color);
@@ -818,12 +768,10 @@ async function renderFatigue() {
     </div>
   `;
 
-  // body-muscles 라이브러리로 렌더링
   function applyBodyMuscles() {
     if (typeof BodyMuscles === 'undefined') { setTimeout(applyBodyMuscles, 200); return; }
     const { BodyChart, ViewSide } = BodyMuscles;
 
-    // intensity 변환: 피로도 색상 → intensity (0~10)
     function hoursToIntensity(hours) {
       if (hours < 24) return 10;
       if (hours < 48) return 7;
@@ -831,7 +779,6 @@ async function renderFatigue() {
       return 1;
     }
 
-    // 근육 그룹 → body-muscles ID 변환
     const frontState = {};
     const backState = {};
     Object.entries(muscleLastTime).forEach(([muscle, hours]) => {
@@ -876,7 +823,6 @@ function renderExercise(container, ex, ei) {
   const card = document.createElement('div');
   const allDone = ex.sets.length > 0 && ex.sets.every(s => s.done);
   card.className = 'exercise-card' + (allDone ? '' : ' open');
-  // 완료된 세트만 볼륨 계산
   const vol = ex.sets.reduce((a,s) => a+(s.done?(parseFloat(s.weight)||0)*(parseFloat(s.reps)||0):0), 0);
   const doneSets = ex.sets.filter(s => s.done).length;
   let setsHtml = ex.sets.map((s,si) =>
@@ -919,7 +865,6 @@ function renderExercise(container, ex, ei) {
 
 function toggleCard(el) { el.closest('.exercise-card').classList.toggle('open'); }
 
-// ── 세트 체크 ────────────────────────────────────────────
 async function toggleSetDone(ei, si, checked) {
   const dayData = await loadDay(currentDate);
   dayData.exercises[ei].sets[si].done = checked;
@@ -936,7 +881,6 @@ async function updateExMemo(ei, val) {
   saveTimer = setTimeout(() => saveDay(currentDate, dayData), 600);
 }
 
-// ── 운동 기록 팝업 ────────────────────────────────────────
 async function showExHistory(exName) {
   document.getElementById('ex-history-title').textContent = exName + ' 최근 기록';
   document.getElementById('ex-history-modal').classList.add('show');
@@ -945,7 +889,7 @@ async function showExHistory(exName) {
   const {data} = await sb.from('workouts').select('date,exercises').eq('user_id', currentUser.id).order('date', {ascending:false});
   const sessions = [];
   for (const row of (data||[])) {
-    if (row.date === currentDate) continue; // 오늘 제외
+    if (row.date === currentDate) continue;
     const ex = (row.exercises||[]).find(e => e.name === exName);
     if (ex && ex.sets && ex.sets.length) { sessions.push({date: row.date, sets: ex.sets}); if (sessions.length >= 3) break; }
   }
@@ -1010,15 +954,6 @@ async function confirmVideoUpload() {
   setTimeout(() => { progress.textContent = ''; }, 2000);
 }
 
-function closeVideoModal() {
-  const player = document.getElementById('video-player');
-  player.pause();
-  player.src = '';
-  player.style.display = 'none';
-  document.getElementById('video-modal').classList.remove('show');
-  currentVideoEx = null;
-}
-
 function exNameToFolder(exName) {
   let safe = '';
   for (let i = 0; i < exName.length; i++) {
@@ -1036,18 +971,32 @@ async function loadVideoList(exName) {
   const videoList = document.getElementById('video-list');
   videoList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px">불러오는 중...</div>';
   const folder = currentUser.id + '/' + exNameToFolder(exName);
-  const { data, error } = await sb.storage.from('videos').list(folder);
-  if (error || !data || !data.length) {
-    videoList.innerHTML = '<div class="video-empty">업로드된 영상이 없습니다<br><span style="font-size:11px;color:var(--text-dim)">↑ 업로드 버튼으로 추가하세요</span></div>';
+  const { data: files } = await sb.storage.from('videos').list(folder);
+  const { data: links } = await sb.from('video_links').select('*').eq('user_id', currentUser.id).eq('exercise_name', exName).order('created_at', {ascending:false});
+
+  const fileItems = (files||[]).map(f => ({ type:'file', name:f.name, path: folder + '/' + f.name }));
+  const linkItems = (links||[]).map(l => ({ type:'link', name:l.label || 'YouTube 링크', url:l.url, id:l.id }));
+  const all = [...linkItems, ...fileItems];
+
+  if (!all.length) {
+    videoList.innerHTML = '<div class="video-empty">등록된 영상이 없습니다<br><span style="font-size:11px;color:var(--text-dim)">↑ 업로드 또는 링크 추가하세요</span></div>';
     return;
   }
-  videoList.innerHTML = data.map((f,i) =>
-    '<div class="video-item" onclick="playVideo(\'' + folder + '/' + f.name + '\')">' +
-    '<div class="video-item-icon">▶</div>' +
-    '<div class="video-item-name">' + (i+1) + '. ' + f.name + '</div>' +
-    '<button class="video-item-del" onclick="event.stopPropagation();deleteVideo(\'' + folder + '/' + f.name + '\',\'' + exName + '\')" title="삭제">×</button>' +
-    '</div>'
-  ).join('');
+  videoList.innerHTML = all.map((item,i) => {
+    if (item.type === 'link') {
+      return '<div class="video-item" onclick="playYoutubeEmbed(\'' + item.url + '\')">' +
+        '<div class="video-item-icon">🔗</div>' +
+        '<div class="video-item-name">' + (i+1) + '. ' + item.name + '</div>' +
+        '<button class="video-item-del" onclick="event.stopPropagation();deleteVideoLink(\'' + item.id + '\',\'' + exName.replace(/'/g,"\\'") + '\')" title="삭제">×</button>' +
+        '</div>';
+    } else {
+      return '<div class="video-item" onclick="playVideo(\'' + item.path + '\')">' +
+        '<div class="video-item-icon">▶</div>' +
+        '<div class="video-item-name">' + (i+1) + '. ' + item.name + '</div>' +
+        '<button class="video-item-del" onclick="event.stopPropagation();deleteVideo(\'' + item.path + '\',\'' + exName.replace(/'/g,"\\'") + '\')" title="삭제">×</button>' +
+        '</div>';
+    }
+  }).join('');
 }
 
 async function playVideo(path) {
@@ -1055,6 +1004,9 @@ async function playVideo(path) {
   const { data } = await sb.storage.from('videos').createSignedUrl(path, 3600);
   setSyncing(false);
   if (!data) { showToast('영상을 불러올 수 없습니다'); return; }
+  document.getElementById('video-player').style.display = 'none';
+  const iframeWrap0 = document.getElementById('yt-iframe-wrap');
+  if (iframeWrap0) iframeWrap0.innerHTML = '';
   const player = document.getElementById('video-player');
   player.src = data.signedUrl;
   player.style.display = 'block';
@@ -1066,6 +1018,56 @@ async function deleteVideo(path, exName) {
   await sb.storage.from('videos').remove([path]);
   showToast('영상 삭제됨');
   await loadVideoList(exName);
+}
+
+// ── 유튜브 링크 ────────────────────────────────────────────
+function playYoutubeEmbed(url) {
+  let videoId = '';
+  const shortsMatch = url.match(/shorts\/([a-zA-Z0-9_-]+)/);
+  const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+  const youtuBeMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
+  videoId = (shortsMatch && shortsMatch[1]) || (watchMatch && watchMatch[1]) || (youtuBeMatch && youtuBeMatch[1]) || '';
+  if (!videoId) { window.open(url, '_blank'); return; }
+  document.getElementById('video-player').style.display = 'none';
+  let iframeWrap = document.getElementById('yt-iframe-wrap');
+  if (!iframeWrap) {
+    iframeWrap = document.createElement('div');
+    iframeWrap.id = 'yt-iframe-wrap';
+    iframeWrap.style.cssText = 'width:100%;aspect-ratio:9/16;max-height:70vh;border-radius:12px;overflow:hidden;margin-bottom:12px;';
+    document.getElementById('video-player').insertAdjacentElement('beforebegin', iframeWrap);
+  }
+  iframeWrap.innerHTML = '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' + videoId + '?mute=1&autoplay=1" frameborder="0" allow="encrypted-media" allowfullscreen></iframe>';
+}
+
+async function addVideoLink() {
+  const input = document.getElementById('video-link-input');
+  const url = input.value.trim();
+  if (!url) return;
+  if (!/^https?:\/\//.test(url)) { showToast('올바른 URL을 입력하세요'); return; }
+  setSyncing(true);
+  await sb.from('video_links').insert({ user_id: currentUser.id, exercise_name: currentVideoEx, url: url });
+  setSyncing(false);
+  input.value = '';
+  showToast('링크 추가됨');
+  await loadVideoList(currentVideoEx);
+}
+
+async function deleteVideoLink(id, exName) {
+  if (!confirm('이 링크를 삭제할까요?')) return;
+  await sb.from('video_links').delete().eq('id', id);
+  showToast('링크 삭제됨');
+  await loadVideoList(exName);
+}
+
+function closeVideoModal() {
+  const player = document.getElementById('video-player');
+  player.pause();
+  player.src = '';
+  player.style.display = 'none';
+  const iframeWrap = document.getElementById('yt-iframe-wrap');
+  if (iframeWrap) iframeWrap.innerHTML = '';
+  document.getElementById('video-modal').classList.remove('show');
+  currentVideoEx = null;
 }
 
 let dragSrc = null;
@@ -1373,7 +1375,6 @@ async function goToHistory(exName) {
   onHistoryExSelect(exName);
 }
 
-// ── 추천 루틴 ──────────────────────────────────────────────
 const ROUTINE_DB = [
   { id:'chest', name:'가슴 루틴', groups:[
     ['벤치프레스','스미스벤치프레스','체스트프레스'],
@@ -1555,7 +1556,6 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 1800);
 }
 
-// ── 당겨서 새로고침 ───────────────────────────────────────
 (function() {
   let startY = 0, pulling = false;
   const indicator = document.getElementById('pull-indicator');

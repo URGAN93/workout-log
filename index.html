@@ -462,14 +462,11 @@ header{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px 
       <button class="video-modal-close" onclick="closeVideoModal()">×</button>
     </div>
     <video class="video-player" id="video-player" controls playsinline style="display:none"></video>
-    <div class="video-list" id="video-list"></div>
-    <div class="video-upload-progress" id="video-upload-progress"></div>
-    <div class="video-link-row" style="display:flex;gap:8px;margin-top:10px;">
+<div class="video-list" id="video-list"></div>
+<div class="video-link-row" style="display:flex;gap:8px;margin-top:10px;">
   <input class="video-name-input" id="video-link-input" placeholder="유튜브(일부공개) 링크 붙여넣기" style="flex:1">
   <button class="confirm-btn" onclick="addVideoLink()" style="padding:9px 14px;font-size:13px;">추가</button>
 </div>
-    <div class="video-name-row" id="video-name-row" style="display:none"><input class="video-name-input" id="video-name-input" placeholder="영상 이름 입력 (예: 와이드그립)" maxlength="20"><button class="confirm-btn" onclick="confirmVideoUpload()" style="padding:9px 14px;font-size:13px;">업로드</button></div>
-    <input type="file" id="video-file-input" accept="video/*" style="display:none" onchange="onVideoFileSelected(this)">
   </div>
 </div>
 
@@ -853,6 +850,8 @@ function renderExercise(container, ex, ei) {
     setsHtml +
     '<div class="ex-memo-wrap"><textarea class="ex-memo" rows="1" placeholder="운동 메모..." onchange="updateExMemo(' + ei + ',this.value)">' + (ex.memo||'') + '</textarea></div>' +
     '<div class="video-btns">' +
+    '<button class="video-btn" onclick="openVideoModal(\'' + ei + '\',\'' + safeName + '\')">▶ 영상 (유튜브)</button>' +
+    '</div>' +'<div class="video-btns">' +
     '<button class="video-btn" onclick="openVideoModal(\'' + ei + '\',\'' + safeName + '\',false)">▶ 영상 보기</button>' +
     '<button class="video-btn" onclick="openVideoModal(\'' + ei + '\',\'' + safeName + '\',true)">↑ 업로드</button>' +
     '</div>' +
@@ -905,119 +904,32 @@ async function showExHistory(exName) {
 function closeExHistory() { document.getElementById('ex-history-modal').classList.remove('show'); }
 
 // ── 동영상 ───────────────────────────────────────────────
-async function openVideoModal(ei, exName, uploadMode) {
+async function openVideoModal(ei, exName) {
   currentVideoEx = exName;
   document.getElementById('video-modal-title').textContent = exName;
   document.getElementById('video-player').style.display = 'none';
   document.getElementById('video-player').src = '';
-  document.getElementById('video-upload-progress').textContent = '';
-  document.getElementById('video-name-row').style.display = 'none';
-  document.getElementById('video-name-input').value = '';
   document.getElementById('video-modal').classList.add('show');
-  if (uploadMode) {
-    document.getElementById('video-file-input').click();
-  } else {
-    await loadVideoList(exName);
-  }
-}
-
-let pendingVideoFile = null;
-function onVideoFileSelected(input) {
-  const file = input.files[0];
-  if (!file) return;
-  pendingVideoFile = file;
-  document.getElementById('video-name-row').style.display = 'flex';
-  document.getElementById('video-name-input').focus();
-}
-
-async function confirmVideoUpload() {
-  const file = pendingVideoFile;
-  const exName = currentVideoEx;
-  if (!file || !exName) return;
-  const nameInput = document.getElementById('video-name-input').value.trim();
-  const ext = file.name.split('.').pop().replace(/[^a-zA-Z0-9]/g,'') || 'mp4';
-  const fileName = (nameInput || Date.now().toString()) + '.' + ext;
-  const folder = currentUser.id + '/' + exNameToFolder(exName);
-  const path = folder + '/' + fileName;
-  const progress = document.getElementById('video-upload-progress');
-  progress.textContent = '업로드 중...';
-  document.getElementById('video-name-row').style.display = 'none';
-  setSyncing(true);
-  const { error } = await sb.storage.from('videos').upload(path, file, { contentType: file.type });
-  setSyncing(false);
-  document.getElementById('video-file-input').value = '';
-  pendingVideoFile = null;
-  if (error) { progress.textContent = '업로드 실패: ' + error.message; return; }
-  progress.textContent = '업로드 완료!';
-  showToast('영상 업로드됨');
   await loadVideoList(exName);
-  setTimeout(() => { progress.textContent = ''; }, 2000);
 }
 
-function exNameToFolder(exName) {
-  let safe = '';
-  for (let i = 0; i < exName.length; i++) {
-    const code = exName.charCodeAt(i);
-    if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 48 && code <= 57)) {
-      safe += exName[i];
-    } else {
-      safe += code.toString(16);
-    }
-  }
-  return safe.slice(0, 40);
-}
 
 async function loadVideoList(exName) {
   const videoList = document.getElementById('video-list');
   videoList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px">불러오는 중...</div>';
-  const folder = currentUser.id + '/' + exNameToFolder(exName);
-  const { data: files } = await sb.storage.from('videos').list(folder);
   const { data: links } = await sb.from('video_links').select('*').eq('user_id', currentUser.id).eq('exercise_name', exName).order('created_at', {ascending:false});
 
-  const fileItems = (files||[]).map(f => ({ type:'file', name:f.name, path: folder + '/' + f.name }));
-  const linkItems = (links||[]).map(l => ({ type:'link', name:l.label || 'YouTube 링크', url:l.url, id:l.id }));
-  const all = [...linkItems, ...fileItems];
-
-  if (!all.length) {
-    videoList.innerHTML = '<div class="video-empty">등록된 영상이 없습니다<br><span style="font-size:11px;color:var(--text-dim)">↑ 업로드 또는 링크 추가하세요</span></div>';
+  if (!links || !links.length) {
+    videoList.innerHTML = '<div class="video-empty">등록된 영상이 없습니다<br><span style="font-size:11px;color:var(--text-dim)">↓ 유튜브 링크를 추가하세요</span></div>';
     return;
   }
-  videoList.innerHTML = all.map((item,i) => {
-    if (item.type === 'link') {
-      return '<div class="video-item" onclick="playYoutubeEmbed(\'' + item.url + '\')">' +
-        '<div class="video-item-icon">🔗</div>' +
-        '<div class="video-item-name">' + (i+1) + '. ' + item.name + '</div>' +
-        '<button class="video-item-del" onclick="event.stopPropagation();deleteVideoLink(\'' + item.id + '\',\'' + exName.replace(/'/g,"\\'") + '\')" title="삭제">×</button>' +
-        '</div>';
-    } else {
-      return '<div class="video-item" onclick="playVideo(\'' + item.path + '\')">' +
-        '<div class="video-item-icon">▶</div>' +
-        '<div class="video-item-name">' + (i+1) + '. ' + item.name + '</div>' +
-        '<button class="video-item-del" onclick="event.stopPropagation();deleteVideo(\'' + item.path + '\',\'' + exName.replace(/'/g,"\\'") + '\')" title="삭제">×</button>' +
-        '</div>';
-    }
-  }).join('');
-}
-
-async function playVideo(path) {
-  setSyncing(true);
-  const { data } = await sb.storage.from('videos').createSignedUrl(path, 3600);
-  setSyncing(false);
-  if (!data) { showToast('영상을 불러올 수 없습니다'); return; }
-  document.getElementById('video-player').style.display = 'none';
-  const iframeWrap0 = document.getElementById('yt-iframe-wrap');
-  if (iframeWrap0) iframeWrap0.innerHTML = '';
-  const player = document.getElementById('video-player');
-  player.src = data.signedUrl;
-  player.style.display = 'block';
-  player.play();
-}
-
-async function deleteVideo(path, exName) {
-  if (!confirm('이 영상을 삭제할까요?')) return;
-  await sb.storage.from('videos').remove([path]);
-  showToast('영상 삭제됨');
-  await loadVideoList(exName);
+  videoList.innerHTML = links.map((l,i) =>
+    '<div class="video-item" onclick="playYoutubeEmbed(\'' + l.url + '\')">' +
+    '<div class="video-item-icon">🔗</div>' +
+    '<div class="video-item-name">' + (i+1) + '. ' + (l.label || 'YouTube 링크') + '</div>' +
+    '<button class="video-item-del" onclick="event.stopPropagation();deleteVideoLink(\'' + l.id + '\',\'' + exName.replace(/'/g,"\\'") + '\')" title="삭제">×</button>' +
+    '</div>'
+  ).join('');
 }
 
 // ── 유튜브 링크 ────────────────────────────────────────────

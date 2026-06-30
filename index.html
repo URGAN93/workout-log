@@ -838,7 +838,7 @@ function renderExercise(container, ex, ei) {
     '<div class="drag-handle">⠿</div>' +
     '<div style="flex:1;display:flex;align-items:center;gap:8px;">' +
     '<div class="exercise-name">' + ex.name + '</div>' +
-    '<button class="history-btn" onclick="event.stopPropagation();showExHistory(\'' + safeName + '\')" title="이전 기록">기록</button>' +
+    '<button class="history-btn" onclick="event.stopPropagation();showExHistory(' + ei + ',\'' + safeName + '\')" title="이전 기록">기록</button>' +
     '</div>' +
     '<div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="toggleCard(this)">' +
     '<div class="exercise-badge">' + (allDone?doneSets:doneSets+'/'+ex.sets.length) + '세트' + (vol>0?' · '+Math.round(vol)+'kg':'') + '</div>' +
@@ -880,7 +880,11 @@ async function updateExMemo(ei, val) {
   saveTimer = setTimeout(() => saveDay(currentDate, dayData), 600);
 }
 
-async function showExHistory(exName) {
+let currentHistoryEi = null;
+let currentHistorySessions = [];
+
+async function showExHistory(ei, exName) {
+  currentHistoryEi = ei;
   document.getElementById('ex-history-title').textContent = exName + ' 최근 기록';
   document.getElementById('ex-history-modal').classList.add('show');
   const content = document.getElementById('ex-history-content');
@@ -892,15 +896,31 @@ async function showExHistory(exName) {
     const ex = (row.exercises||[]).find(e => e.name === exName);
     if (ex && ex.sets && ex.sets.length) { sessions.push({date: row.date, sets: ex.sets}); if (sessions.length >= 3) break; }
   }
+  currentHistorySessions = sessions;
   if (!sessions.length) { content.innerHTML = '<div class="ex-history-empty">이전 기록이 없습니다</div>'; return; }
-  content.innerHTML = sessions.map(s => {
+  content.innerHTML = sessions.map((s, si) => {
     const rows = s.sets.map((set,i) =>
       '<div class="ex-history-row"><div style="color:var(--text-dim)">' + (i+1) + '</div><span>' + (set.weight||'—') + 'kg</span><span>' + (set.reps||'—') + '회</span></div>'
     ).join('');
     const vol = s.sets.reduce((a,set)=>a+(parseFloat(set.weight)||0)*(parseFloat(set.reps)||0),0);
-    return '<div class="ex-history-session"><div class="ex-history-date">' + formatDateShort(s.date) + (vol>0?' · '+Math.round(vol)+'kg':'') + '</div>' + rows + '</div>';
+    return '<div class="ex-history-session" style="cursor:pointer" onclick="applyExHistorySession(' + si + ')"><div class="ex-history-date">' + formatDateShort(s.date) + (vol>0?' · '+Math.round(vol)+'kg':'') + '</div>' + rows + '</div>';
   }).join('');
 }
+
+async function applyExHistorySession(si) {
+  const session = currentHistorySessions[si];
+  if (!session || currentHistoryEi === null) return;
+  if (!confirm(formatDateShort(session.date) + ' 의 셋팅으로 변경할까요?')) return;
+  const dayData = await loadDay(currentDate);
+  const ex = dayData.exercises[currentHistoryEi];
+  if (!ex) return;
+  ex.sets = session.sets.map(s => ({ weight: s.weight || '', reps: s.reps || '', note: '', done: false }));
+  await saveDay(currentDate, dayData);
+  closeExHistory();
+  render();
+  showToast('과거 기록으로 변경됨');
+}
+
 function closeExHistory() { document.getElementById('ex-history-modal').classList.remove('show'); }
 
 // ── 동영상 ───────────────────────────────────────────────
